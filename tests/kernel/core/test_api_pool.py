@@ -144,9 +144,7 @@ class TestWeightHelpers:
 
 
 class TestGetSlot:
-    def test_get_slot_returns_slot_matching_one_based_index(
-        self, make_slots, console
-    ):
+    def test_get_slot_returns_slot_matching_one_based_index(self, make_slots, console):
         slots = make_slots([(1, 5, 1.0), (2, 3, 2.0), (3, 1, 1.0)])
         pool = make_pool(slots, bounded=True, console=console)
 
@@ -202,9 +200,7 @@ class TestSelectCall:
         assert pool._get_weight(slots[0]) == 8.0
         assert pool._removed_indices == set()
 
-    def test_bounded_removes_slot_once_capacity_is_exhausted(
-        self, make_slots, console
-    ):
+    def test_bounded_removes_slot_once_capacity_is_exhausted(self, make_slots, console):
         slots = make_slots([(1, 1, 3.0)])
         pool = make_pool(slots, bounded=True, console=console)
 
@@ -380,9 +376,7 @@ class TestReleaseExpiredJails:
         assert pool._get_weight(slots[0]) == 0.0
         console.event.assert_not_called()
 
-    def test_skips_slots_that_have_been_permanently_removed(
-        self, make_slots, console
-    ):
+    def test_skips_slots_that_have_been_permanently_removed(self, make_slots, console):
         slots = make_slots([(1, 4, 2.0)])
         slots[0].jailed_until = 50.0
         pool = make_pool(slots, bounded=True, console=console)
