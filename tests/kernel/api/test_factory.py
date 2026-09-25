@@ -4,7 +4,11 @@ from pathlib import Path
 import pytest
 
 from kernel.api.factory import ApiFactory
-from kernel.api.exceptions import LoadApiEndpointsError, ApiEndpointsNotFoundError, NoValidApiEndpointFoundError
+from kernel.api.exceptions import (
+    LoadApiEndpointsError,
+    ApiEndpointsNotFoundError,
+    NoValidApiEndpointFoundError,
+)
 
 
 @pytest.fixture
