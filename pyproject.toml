@@ -1,0 +1,45 @@
+[build-system]
+requires = [
+    "setuptools>=77.0.3",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "salvo"
+version = "2.0.0"
+description = "An asynchronous request dispatcher for distributing requests across multiple SMS-sending APIs."
+requires-python = ">=3.11"
+
+authors = [
+    { name = "TheBitGlitch" },
+]
+
+license = "MIT"
+license-files = ["LICENSE"]
+
+dependencies = [
+    "aiohttp==3.14.1",
+    "cyclopts==4.22.5",
+    "fake-useragent==2.2.0",
+    "platformdirs==4.11.1",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest==9.1.1",
+    "pytest-asyncio==1.4.0",
+]
+
+[project.scripts]
+salvo = "salvo:main"
+
+[project.urls]
+Repository = "https://github.com/TheBitGlitch/salvo"
+Endpoints = "https://github.com/TheBitGlitch/salvo-endpoints"
+
+[tool.setuptools]
+py-modules = ["salvo", "default_path"]
+
+[tool.setuptools.packages.find]
+include = ["cli*", "kernel*", "tools*"]
+exclude = ["tests*"]
