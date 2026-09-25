@@ -1,21 +1,3 @@
-"""
-Full pytest test suite for mypkg.console.Console.
-
-Notes on approach:
-- Public logging methods (notice/warning/critical/error/event/response/summary)
-  are tested two ways:
-    1. Dispatch tests that patch `_emit` and assert it is called with the
-       correct tags/message/payloads/color/stream, isolating each method's
-       own logic from `_emit`'s formatting/queueing internals.
-    2. A couple of integration tests that let `_emit` run for real and check
-       the actual text written to stdout/stderr, so the wiring between the
-       two layers is also covered.
-- Async behavior (start_logger/stop_logger/_logger_drain and the queueing
-  branch of `_emit`) is tested with `pytest.mark.asyncio`.
-- Timestamps are made deterministic by monkeypatching `console.datetime`
-  with a subclass whose `now()` returns a fixed value.
-"""
-
 import asyncio
 import io
 import sys
