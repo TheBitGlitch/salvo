@@ -15,7 +15,7 @@ def make_api_call(source: str) -> ApiCall:
 def make_api_slot(
     index: int,
     capacity: int = 5,
-    ticket: float = 1.0,
+    ticket: int = 100,
     source: str | None = None,
     strikes: int = 0,
     was_jailed: bool = False,
