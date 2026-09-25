@@ -299,8 +299,9 @@ healthy. Use Limited when you need the pool to adapt to endpoint health.
 
 ## Testing
 
-The project includes a `pytest` suite under `tests/`. Its directory structure
-mirrors the source tree, and `pytest-asyncio` is used for asynchronous tests.
+The project includes a `pytest` suite under `tests/`, covering core components
+and other critical application behavior. `pytest-asyncio` is used for
+asynchronous tests.
 
 ```bash
 pip install -e ".[test]"
