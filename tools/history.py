@@ -112,7 +112,7 @@ class History:
             records = ""
 
         if not records:
-            print("No history is available.")
+            print("No history available.")
             return
 
         pager = pydoc.get_pager()
