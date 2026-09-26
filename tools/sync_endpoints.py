@@ -158,19 +158,19 @@ class Synchronizer:
             return SyncResult.SUCCEEDED
 
         except HTTPError as exc:
-            print(f"HTTP error while synchronizing endpoints: {exc}")
+            print(f"HTTP error while synchronizing endpoints: {exc}\n")
 
         except URLError as exc:
-            print(f"URL error while synchronizing endpoints: {exc}")
+            print(f"URL error while synchronizing endpoints: {exc}\n")
 
         except ValueError as exc:
-            print(f"Invalid endpoint configuration: {exc}")
+            print(f"Invalid endpoint configuration: {exc}\n")
 
         except OSError as exc:
-            print(f"File error while synchronizing endpoints: {exc}")
+            print(f"File error while synchronizing endpoints: {exc}\n")
 
         except Exception as exc:
-            print(f"Unexpected error while synchronizing endpoints: {exc}")
+            print(f"Unexpected error while synchronizing endpoints: {exc}\n")
 
         return SyncResult.FAILED
 
@@ -200,13 +200,13 @@ def sync_endpoints(
     result = synchronizer.sync()
 
     if result is SyncResult.SUCCEEDED:
-        print("Endpoint configuration synchronized successfully.")
+        print("Endpoint configuration synchronized successfully.\n")
 
     elif result is SyncResult.UNCHANGED:
-        print("Endpoint configuration is already up to date.")
+        print("Endpoint configuration is already up to date.\n")
 
     else:
-        print("Endpoint configuration synchronization failed.")
+        print("Endpoint configuration synchronization failed.\n")
 
 
 # CLI entry point for this tool; used by the manage subcommand for automatic discovery.
