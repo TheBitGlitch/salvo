@@ -9,7 +9,7 @@ def clear_cache() -> None:
         shutil.rmtree(DefaultPath.CACHE_DIR)
 
     except FileNotFoundError:
-        print(f"No cache found.\n")
+        print("No cache found.\n")
 
     except OSError as exc:
         print(f"Failed to clear cache: {exc}\n")
