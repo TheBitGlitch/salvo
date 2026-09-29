@@ -34,7 +34,7 @@ test = [
 salvo = "salvo:main"
 
 [project.urls]
-Repository = "https://github.com/TheBitGlitch/salvo"
+SourceCode = "https://github.com/TheBitGlitch/salvo"
 Endpoints = "https://github.com/TheBitGlitch/salvo-endpoints"
 
 [tool.setuptools]
