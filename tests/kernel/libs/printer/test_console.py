@@ -40,6 +40,7 @@ def frozen_time(monkeypatch):
 
 class TestInit:
     def test_defaults(self, console: Console):
+        assert console._verbose is False
         assert console._time_format == "%H:%M:%S"
         assert console._payload_open == "<"
         assert console._payload_close == ">"
@@ -49,7 +50,10 @@ class TestInit:
         assert console._log_queue.maxsize == 1000
 
     def test_custom_params(self):
-        console = Console(time_format="%Y", payload_open="[", payload_close="]")
+        console = Console(
+            verbose=True, time_format="%Y", payload_open="[", payload_close="]"
+        )
+        assert console._verbose is True
         assert console._time_format == "%Y"
         assert console._payload_open == "["
         assert console._payload_close == "]"
@@ -534,14 +538,14 @@ class TestStartStopLogger:
     async def test_full_round_trip_through_public_log_method(
         self, monkeypatch, console: Console
     ):
-        fake_stdout = io.StringIO()
-        monkeypatch.setattr(console_module.sys, "stdout", fake_stdout)
+        fake_stderr = io.StringIO()
+        monkeypatch.setattr(console_module.sys, "stderr", fake_stderr)
 
         console.start_logger()
         console.notice("async hello")
         await console.stop_logger()
 
-        assert "async hello" in fake_stdout.getvalue()
+        assert "async hello" in fake_stderr.getvalue()
         assert console.dropped_log_count == 0
 
 
@@ -598,8 +602,48 @@ class TestEventDispatch:
             message="user jailed",
             payloads={"user": "bob"},
             color=EventTag.JAILED.color,
-            stream=sys.stdout,
+            stream=sys.stderr,
         )
+
+
+class TestDebugDispatch:
+    def test_debug_is_ignored_when_verbose_disabled(
+        self, console: Console, monkeypatch
+    ):
+        spy = MagicMock()
+        monkeypatch.setattr(console, "_emit", spy)
+
+        console.debug("diagnostic")
+
+        spy.assert_not_called()
+
+    def test_debug_calls_emit_when_verbose_enabled(self, monkeypatch):
+        console = Console(verbose=True)
+
+        spy = MagicMock()
+        monkeypatch.setattr(console, "_emit", spy)
+
+        console.debug("diagnostic", value=42)
+
+        spy.assert_called_once_with(
+            tags=(SystemTag.DEBUG,),
+            message="diagnostic",
+            payloads={"value": 42},
+            color=SystemTag.DEBUG.color,
+            stream=sys.stderr,
+        )
+
+    def test_debug_integration_writes_to_stderr(self, monkeypatch):
+        console = Console(verbose=True)
+
+        fake_stderr = io.StringIO()
+        monkeypatch.setattr(console_module.sys, "stderr", fake_stderr)
+
+        console.debug("diagnostic")
+
+        output = fake_stderr.getvalue()
+        assert "[DEBUG]" in output
+        assert "diagnostic" in output
 
 
 class TestNoticeDispatch:
@@ -616,16 +660,16 @@ class TestNoticeDispatch:
             message="all good",
             payloads={"foo": "bar"},
             color=SeverityTag.NOTICE.color,
-            stream=sys.stdout,
+            stream=sys.stderr,
         )
 
-    def test_notice_integration_writes_to_stdout(self, monkeypatch, console: Console):
-        fake_stdout = io.StringIO()
-        monkeypatch.setattr(console_module.sys, "stdout", fake_stdout)
+    def test_notice_integration_writes_to_stderr(self, monkeypatch, console: Console):
+        fake_stderr = io.StringIO()
+        monkeypatch.setattr(console_module.sys, "stderr", fake_stderr)
 
         console.notice("all good")
 
-        output = fake_stdout.getvalue()
+        output = fake_stderr.getvalue()
         assert "[NOTICE]" in output
         assert "all good" in output
         assert output.startswith(str(SeverityTag.NOTICE.color))
@@ -645,7 +689,7 @@ class TestWarningDispatch:
             message="careful",
             payloads={"code": 42},
             color=SeverityTag.WARNING.color,
-            stream=sys.stdout,
+            stream=sys.stderr,
         )
 
 
@@ -764,7 +808,7 @@ class TestSummaryDispatch:
             ),
             payloads={"dropped_logs": 0},
             color=SystemTag.SUMMARY.color,
-            stream=sys.stdout,
+            stream=sys.stderr,
         )
 
     def test_summary_handles_zero_total_without_dividing_by_zero(
@@ -791,13 +835,13 @@ class TestSummaryDispatch:
         _, kwargs = spy.call_args
         assert kwargs["payloads"] == {"dropped_logs": 4}
 
-    def test_summary_integration_writes_to_stdout(self, monkeypatch, console: Console):
-        fake_stdout = io.StringIO()
-        monkeypatch.setattr(console_module.sys, "stdout", fake_stdout)
+    def test_summary_integration_writes_to_stderr(self, monkeypatch, console: Console):
+        fake_stderr = io.StringIO()
+        monkeypatch.setattr(console_module.sys, "stderr", fake_stderr)
 
         console.summary(success=3, failure=1, total_time=2.0)
 
-        output = fake_stdout.getvalue()
+        output = fake_stderr.getvalue()
         assert "[SUMMARY]" in output
         assert "Success Rate: 75.0%" in output
         assert "dropped_logs: 0" in output
