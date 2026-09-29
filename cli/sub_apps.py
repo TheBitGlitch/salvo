@@ -127,6 +127,14 @@ class RuntimeArgs:
         ),
     ] = False
 
+    verbose: Annotated[
+        bool,
+        Parameter(
+            name="--verbose",
+            help="Enable DEBUG logging for additional diagnostic information.",
+        ),
+    ] = False
+    
     def __post_init__(self) -> None:
         if self.fail_tolerance is None and self.mode is ExecutionMode.LIMITED:
             self.fail_tolerance = 6
