@@ -43,3 +43,6 @@ py-modules = ["salvo", "default_path"]
 [tool.setuptools.packages.find]
 include = ["cli*", "kernel*", "tools*"]
 exclude = ["tests*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
