@@ -44,7 +44,7 @@ def main() -> None:
     if runtime_args is None:
         graceful_exit()  # No runtime execution is required.
 
-    console = Console()
+    console = Console(verbose=runtime_args.verbose)
 
     if not check_network_access():
         console.error(
