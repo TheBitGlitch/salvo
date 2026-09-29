@@ -46,6 +46,7 @@ endpoints that fail repeatedly.
   selecting the next request.
 * **Non-blocking background logging** with a bounded queue and dropped-log
   tracking.
+* **Optional debug logging** with `--verbose` for additional diagnostic information.
 * **ETag-based endpoint synchronization** with validation and atomic file
   replacement.
 * **Command history** with automatic trimming at 5 MiB.
