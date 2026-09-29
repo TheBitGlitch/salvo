@@ -3,13 +3,14 @@ from pathlib import Path
 from collections.abc import Sequence
 
 
-def get_invocation(black_list: Sequence[str] = []) -> str | None:
+def get_invocation(black_list: Sequence[str] | None = None) -> str | None:
     """
     Returns the current command-line invocation.
 
     The executable path is replaced with its filename stem,
     Commands listed in `black_list` are excluded from the returned invocation.
     """
+    black_list = black_list or ()
     argv = sys.argv.copy()
 
     if argv:
