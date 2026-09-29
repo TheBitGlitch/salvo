@@ -25,6 +25,10 @@ class Console:
     Logging can be performed synchronously or through a background asyncio
     task backed by a bounded queue.
 
+    Application logs are written to `stderr` while response output is written
+    to `stdout`, allowing command results to be captured independently from
+    application diagnostics.
+
     The logger also tracks the number of log entries dropped when the
     asynchronous queue is full.
     """
@@ -85,6 +89,7 @@ class Console:
 
     def __init__(
         self,
+        verbose: bool,
         time_format: str = "%H:%M:%S",
         payload_open: str = "<",
         payload_close: str = ">",
@@ -93,11 +98,14 @@ class Console:
         Initialize the console logger.
 
         Args:
+            verbose: Whether optional DEBUG-level log messages are enabled.
+                When disabled, calls to `Console.debug()` are ignored.
             time_format: Time-stamp format passed to `datetime.strftime()`.
             payload_open: Opening delimiter used when formatting payloads.
             payload_close: Closing delimiter used when formatting payloads.
 
         Internal state:
+            _verbose: Whether DEBUG-level logging is enabled.
             _time_format: Configured timestamp format.
             _payload_open: Opening delimiter for formatted payloads.
             _payload_close: Closing delimiter for formatted payloads.
@@ -109,6 +117,7 @@ class Console:
         """
         self._enable_ansi_support()
 
+        self._verbose = verbose
         self._time_format = time_format
         self._payload_open = payload_open
         self._payload_close = payload_close
@@ -334,7 +343,34 @@ class Console:
             message=message,
             payloads=kwargs,
             color=event.color,
-            stream=sys.stdout,
+            stream=sys.stderr,
+        )
+
+    def debug(self, message: str, **kwargs) -> None:
+        """
+        Emit an optional DEBUG-level log.
+
+        DEBUG messages are intended for diagnostic information that is useful
+        during development or troubleshooting but is not normally shown to users.
+
+        When verbose logging is disabled, this method returns without emitting
+        or queuing a log entry.
+
+        Args:
+            message: Debug message content.
+            kwargs: Optional payload data.
+        """
+        if not self._verbose:
+            return
+
+        tag = SystemTag.DEBUG
+
+        self._emit(
+            tags=(tag,),
+            message=message,
+            payloads=kwargs,
+            color=tag.color,
+            stream=sys.stderr,
         )
 
     def notice(self, message: str, **kwargs) -> None:
@@ -354,7 +390,7 @@ class Console:
             message=message,
             payloads=kwargs,
             color=tag.color,
-            stream=sys.stdout,
+            stream=sys.stderr,
         )
 
     def warning(self, message: str, **kwargs) -> None:
@@ -375,7 +411,7 @@ class Console:
             message=message,
             payloads=kwargs,
             color=tag.color,
-            stream=sys.stdout,
+            stream=sys.stderr,
         )
 
     def critical(self, message: str, **kwargs) -> None:
@@ -476,5 +512,5 @@ class Console:
             message=message,
             payloads={"dropped_logs": self._dropped_log_count},
             color=tag.color,
-            stream=sys.stdout,
+            stream=sys.stderr,
         )
