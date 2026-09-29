@@ -52,7 +52,7 @@ def proxy_validator(type_, proxy_url: str | None) -> None:
 
     scheme = match.group("scheme")
 
-    if scheme not in ("http", "https"):
+    if scheme not in ("http", "https",):
         raise UnsupportedProxyUrlError(scheme)
 
 
@@ -70,20 +70,20 @@ def runtime_validator(type_, args: RuntimeArgs) -> None:
 
         if args.limit is not None:
             raise CliValidationError(
-                "The --limit option cannot be used with unlimited execution mode."
+                "The --limit option cannot be used with unlimited execution mode. "
             )
 
         if args.fail_tolerance is not None:
             raise CliValidationError(
-                "The --fail-tolerance option cannot be used with unlimited execution mode."
+                "The --fail-tolerance option cannot be used with unlimited execution mode. "
             )
 
         if args.fallback:
             raise CliValidationError(
-                "The --fallback option cannot be used with unlimited execution mode."
+                "The --fallback option cannot be used with unlimited execution mode. "
             )
 
     if args.proxy is None and args.fallback:
         raise CliValidationError(
-            "The --fallback option requires a proxy to be specified with --proxy."
+            "The --fallback option requires a proxy to be specified with --proxy. "
         )
