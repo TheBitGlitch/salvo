@@ -125,7 +125,7 @@ class RuntimeArgs:
             name="--ssl",
             help="Enable SSL certificate verification.",
         ),
-    ] = False
+    ] = True
 
     verbose: Annotated[
         bool,
