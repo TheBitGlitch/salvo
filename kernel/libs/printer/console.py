@@ -89,7 +89,7 @@ class Console:
 
     def __init__(
         self,
-        verbose: bool,
+        verbose: bool = False,
         time_format: str = "%H:%M:%S",
         payload_open: str = "<",
         payload_close: str = ">",
