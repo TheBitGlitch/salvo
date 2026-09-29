@@ -278,11 +278,11 @@ healthy. Use Limited when you need the pool to adapt to endpoint health.
 │       │   ├── __init__.py
 │       │   ├── color.py          # ANSI color definitions
 │       │   ├── console.py        # Console output and async logger
-│       │   └── tags.py           # Severity and response tags
+│       │   └── tags.py           # Console tag definitions
 │       │
 │       └── structures/
 │           ├── __init__.py
-│           └── fenwick_tree.py   # Fenwick Tree implementation
+│           └── fenwick_tree.py   # Fenwick (Binary Indexed) tree implementation
 │
 ├── tools/                        # Auxiliary application operations
 │   ├── __init__.py
