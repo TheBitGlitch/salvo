@@ -157,8 +157,12 @@ subcommand, with underscores converted to hyphens.
 Salvo uses ANSI escape codes to provide structured and colorized console
 output. The example below is shown without colors for readability.
 
+```bash
+salvo run -t +989123456789 -p http://192.0.2.10:8080 --fallback --no-ssl
+```
+
 ```text
-17:38:26 [NOTICE] Mission started. <target: 9123456789, mode: limited, limit: None, concurrency: 6, proxy: http://192.0.2.10:8080, endpoints: C:\Users\User\AppData\Local\salvo\salvo\endpoints.json, fail_tolerance: 6, timeout: 5, fallback: True, ssl: True, verbose: False>
+17:38:26 [NOTICE] Mission started. <target: 9123456789, mode: limited, limit: None, concurrency: 6, proxy: http://192.0.2.10:8080, endpoints: C:\Users\User\AppData\Local\salvo\salvo\endpoints.json, fail_tolerance: 6, timeout: 5, fallback: True, ssl: False, verbose: False>
 17:38:26 [NOTICE] All 6 workers are running.
 17:38:27 [01] [SUCCESS] example.com <status_code: 200>
 17:38:27 [02] [SUCCESS] sample.org <status_code: 200>
