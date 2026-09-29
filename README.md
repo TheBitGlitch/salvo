@@ -133,6 +133,7 @@ salvo run
       --fallback       Fall back to a direct connection after repeated proxy
                        failures. Limited mode only.
       --ssl            Enable SSL certificate verification. Default: off.
+      --verbose        Enable DEBUG logging for additional diagnostic information.
 ```
 
 ### Management commands
