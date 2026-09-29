@@ -45,6 +45,7 @@ class SystemTag(Tag):
     """Tags used for system-level messages."""
 
     SUMMARY = ("SUMMARY", Color.CYAN)
+    DEBUG = ("DEBUG", Color.LIGHT_GRAY)
 
 
 class ResponseTag(Tag):
