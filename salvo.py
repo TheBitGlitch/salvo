@@ -4,7 +4,7 @@
 import sys
 import socket
 
-from cli import app
+from cli import app as cli_app
 from cli.sub_apps import RuntimeArgs
 from cli.helpers import get_invocation
 
@@ -39,7 +39,7 @@ def main() -> None:
         History.add(invocation)
 
     # Management commands complete their work without producing runtime arguments.
-    runtime_args: RuntimeArgs | None = app()
+    runtime_args: RuntimeArgs | None = cli_app()
 
     if runtime_args is None:
         graceful_exit()  # No runtime execution is required.
