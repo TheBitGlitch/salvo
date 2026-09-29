@@ -89,7 +89,7 @@ class RuntimeArgs:
     endpoints: Annotated[
         Path,
         Parameter(
-            name="--endpoints",
+            name=["-e", "--endpoints"],
             help="Path to the endpoint configuration.",
         ),
     ] = DefaultPath.ENDPOINTS_JSON
