@@ -91,7 +91,7 @@ class History:
     def add(cls, command: str) -> None:
         cls._PATH.parent.mkdir(exist_ok=True, parents=True)
 
-        record = f"{cls._time_stamp()} - {command}\n"
+        record = f"[{cls._time_stamp()}] {command}\n"
 
         with cls._PATH.open("a", encoding="utf-8") as f:
             f.write(record)
