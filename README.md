@@ -122,18 +122,16 @@ before being passed to the execution layer.
 
 ```text
 salvo run
-  target               Target phone number (required).
-                          Can also be specified with -t or --target.
+  target               Target phone number (required). Can also be specified with -t or --target.
   -m, --mode           Execution mode: "limited" (default) or "unlimited".
   -l, --limit          Stop after N successful requests. Limited mode only.
   -c, --concurrency    Maximum number of concurrent workers. Default: 6.
   -p, --proxy          HTTP/HTTPS proxy URL.
   -e, --endpoints      Path to the endpoint configuration JSON.
-      --fail-tolerance Maximum consecutive failures before stopping.
-                          Default: 6 in limited mode.
+      --fail-tolerance Maximum consecutive failures before stopping. Default: 6 in limited mode.
       --timeout        Per-request timeout in seconds. Default: 5.
-      --fallback       Fall back to a direct connection after repeated proxy
-                          failures. Limited mode only. Default: off.
+      --fallback       Fall back to a direct connection after repeated proxy failures.
+                       Limited mode only. Default: off.
       --ssl            Enable SSL certificate verification. Default: on.
       --verbose        Enable DEBUG logging for additional diagnostic information. Default: off.
 ```
