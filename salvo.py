@@ -52,6 +52,30 @@ def main() -> None:
         )
         graceful_exit(1)
 
+    if runtime_args.proxy is None:
+        confirm_continue = console.input(
+            "No proxy configured. Continue with your own IP address? (y/n): "
+        ).lower()
+
+        if confirm_continue not in ("y", "yes"):
+            console.notice("Mission aborted by operator.")
+            graceful_exit()
+
+    console.clear_screen()
+    
+    if not runtime_args.ssl:
+        console.warning(
+            "SSL certificate verification is disabled. "
+            "HTTPS requests will not verify the server certificate."
+        )
+
+    if runtime_args.fallback:
+        console.warning(
+            "Proxy fallback is enabled. "
+            "After reaching the configured consecutive failure tolerance, "
+            "requests will continue using a direct connection."
+        )
+        
     try:
         api_factory = ApiFactory(
             endpoints_path=runtime_args.endpoints,
@@ -66,17 +90,6 @@ def main() -> None:
     except ApiError as exc:
         console.error(str(exc))
         graceful_exit(1)
-
-    if runtime_args.proxy is None:
-        confirm_continue = console.input(
-            "No proxy configured. Continue with your own IP address? (y/n): "
-        ).lower()
-
-        if confirm_continue not in ("y", "yes"):
-            console.notice("Mission aborted by operator.")
-            graceful_exit()
-
-    console.clear_screen()
 
     try:
         engine = Engine(
