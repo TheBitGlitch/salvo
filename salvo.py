@@ -69,6 +69,9 @@ def main() -> None:
             "HTTPS requests will not verify the server certificate."
         )
 
+    if runtime_args.proxy is not None:
+        console.warning("An unreachable proxy may delay failure reports until timeout.")
+        
     if runtime_args.fallback:
         console.warning(
             "Proxy fallback is enabled. "
