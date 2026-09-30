@@ -158,7 +158,7 @@ Salvo uses ANSI escape codes to provide structured and colorized console
 output. The example below is shown without colors for readability.
 
 ```bash
-salvo run -t +989123456789 -l 29 -p http://192.0.2.10:8080 --fallback --no-ssl
+salvo run -t +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl
 ```
 
 ```text
