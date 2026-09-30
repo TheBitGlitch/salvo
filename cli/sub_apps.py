@@ -44,7 +44,7 @@ class RuntimeArgs:
     target: Annotated[
         str,
         Parameter(
-            name=["-t", "--target"],
+            alias=["-t", "--target"],
             help="Target phone number.",
             converter=phone_converter,
             validator=phone_validator,
