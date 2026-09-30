@@ -154,8 +154,7 @@ subcommand, with underscores converted to hyphens.
 
 ### Example output
 
-Salvo uses ANSI escape codes to provide structured and colorized console
-output. The example below is shown without colors for readability.
+The following is an example run using an unreachable proxy with fallback enabled. It demonstrates proxy failures, automatic fallback to a direct connection, endpoint jailing and removal, and the final execution summary.
 
 ```bash
 salvo run -t +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl
