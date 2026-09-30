@@ -132,9 +132,9 @@ salvo run
                           Default: 6 in limited mode.
       --timeout        Per-request timeout in seconds. Default: 5.
       --fallback       Fall back to a direct connection after repeated proxy
-                          failures. Limited mode only.
-      --ssl            Enable SSL certificate verification. Default: off.
-      --verbose        Enable DEBUG logging for additional diagnostic information.
+                          failures. Limited mode only. Default: off.
+      --ssl            Enable SSL certificate verification. Default: on.
+      --verbose        Enable DEBUG logging for additional diagnostic information. Default: off.
 ```
 
 ### Management commands
