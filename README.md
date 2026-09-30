@@ -129,10 +129,10 @@ salvo run
   -p, --proxy          HTTP/HTTPS proxy URL.
   -e, --endpoints      Path to the endpoint configuration JSON.
       --fail-tolerance Maximum consecutive failures before stopping.
-                       Default: 6 in limited mode.
+                          Default: 6 in limited mode.
       --timeout        Per-request timeout in seconds. Default: 5.
       --fallback       Fall back to a direct connection after repeated proxy
-                       failures. Limited mode only.
+                          failures. Limited mode only.
       --ssl            Enable SSL certificate verification. Default: off.
       --verbose        Enable DEBUG logging for additional diagnostic information.
 ```
