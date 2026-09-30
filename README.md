@@ -158,7 +158,7 @@ Salvo uses ANSI escape codes to provide structured and colorized console
 output. The example below is shown without colors for readability.
 
 ```bash
-salvo run -t +989123456789 -p http://192.0.2.10:8080 --fallback --no-ssl
+salvo run -t +989123456789 -l 29 -p http://192.0.2.10:8080 --fallback --no-ssl
 ```
 
 ```text
@@ -201,6 +201,12 @@ salvo run -t +989123456789 -p http://192.0.2.10:8080 --fallback --no-ssl
 17:38:59 [NOTICE] [PURGED] API `example.com` permanently removed after second jail.
 17:39:00 [28] [SUCCESS] sample.org <status_code: 200>
 17:39:01 [29] [SUCCESS] alpha.net <status_code: 200>
+17:39:01 [NOTICE] Worker 02; API pool is fully depleted.
+17:39:01 [NOTICE] Worker 01; API pool is fully depleted.
+17:39:01 [NOTICE] Worker 03; API pool is fully depleted.
+17:39:01 [NOTICE] Worker 04; API pool is fully depleted.
+17:39:01 [NOTICE] Worker 05; API pool is fully depleted.
+17:39:01 [NOTICE] Worker 06; API pool is fully depleted.
 17:39:02 [NOTICE] Mission completed.
 17:39:02 [SUMMARY] Time: 36.0s | Total: 29 | Success: 17 | Failure: 12 | Success Rate: 58.6% <dropped_logs: 0>
 ```
