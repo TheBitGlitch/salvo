@@ -175,8 +175,11 @@ class SessionTracker:
                 self._stop_event.set()
                 return False
 
-            if self._fail_tolerance and self._consec_fail >= self._fail_tolerance:
-
+            if (
+                self._fail_tolerance
+                and self._consec_fail >= self._fail_tolerance
+                and not self.is_stopped
+            ):
                 self._console.critical(
                     f"Consecutive failure tolerance reached ({self._fail_tolerance}). "
                     "Connection reliability has been compromised."
