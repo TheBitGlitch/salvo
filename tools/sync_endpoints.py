@@ -187,7 +187,7 @@ def sync_endpoints(
         bool,
         Parameter(
             name=["-f", "--force"],
-            help="Download the endpoint configuration without using the stored ETag.",
+            help="Download the endpoint configuration regardless of the stored ETag.",
         ),
     ] = False,
 ) -> None:
