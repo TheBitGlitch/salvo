@@ -112,7 +112,7 @@ point at a different remote.
 ### Basic run
 
 ```bash
-salvo run -t 09123456789
+salvo run 09123456789
 ```
 
 The target phone number accepts supported Iranian formats and is normalized
@@ -122,7 +122,8 @@ before being passed to the execution layer.
 
 ```text
 salvo run
-  -t, --target         Target phone number (required).
+  target               Target phone number (required).
+                          Can also be specified with -t or --target.
   -m, --mode           Execution mode: "limited" (default) or "unlimited".
   -l, --limit          Stop after N successful requests. Limited mode only.
   -c, --concurrency    Maximum number of concurrent workers. Default: 6.
@@ -157,7 +158,7 @@ subcommand, with underscores converted to hyphens.
 The following is an example run with a success limit, an unreachable proxy, and fallback enabled. It demonstrates proxy failures, automatic fallback to a direct connection, endpoint jailing and removal, and the final execution summary.
 
 ```bash
-salvo run -t +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl
+salvo run +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl
 ```
 
 ```text
