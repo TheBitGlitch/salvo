@@ -115,6 +115,7 @@ class RuntimeArgs:
         bool,
         Parameter(
             name="--fallback",
+            negative="--no-fallback",
             help="Enable fallback to alternative endpoints.",
         ),
     ] = False
@@ -123,6 +124,7 @@ class RuntimeArgs:
         bool,
         Parameter(
             name="--ssl",
+            negative="--no-ssl",
             help="Enable SSL certificate verification.",
         ),
     ] = True
@@ -131,9 +133,19 @@ class RuntimeArgs:
         bool,
         Parameter(
             name="--verbose",
+            negative="--no-verbose",
             help="Enable DEBUG logging for additional diagnostic information.",
         ),
     ] = False
+
+    color: Annotated[
+        bool,
+        Parameter(
+            name="--color",
+            negative="--no-color",
+            help="Enable colored console output.",
+        ),
+    ] = True
     
     def __post_init__(self) -> None:
         if self.fail_tolerance is None and self.mode is ExecutionMode.LIMITED:
