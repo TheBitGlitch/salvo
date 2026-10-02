@@ -100,24 +100,23 @@ class Console:
         Args:
             verbose: Whether optional DEBUG-level log messages are enabled.
                 When disabled, calls to `Console.debug()` are ignored.
+            colored: Whether console output uses ANSI color codes.
             time_format: Time-stamp format passed to `datetime.strftime()`.
             payload_open: Opening delimiter used when formatting payloads.
             payload_close: Closing delimiter used when formatting payloads.
 
         Internal state:
-            _verbose: Whether DEBUG-level logging is enabled.
-            _time_format: Configured timestamp format.
-            _payload_open: Opening delimiter for formatted payloads.
-            _payload_close: Closing delimiter for formatted payloads.
             _log_queue: Bounded queue containing pending log entries.
             _log_task: Background asyncio task responsible for draining
                 the log queue, or `None` when the logger is not running.
             _dropped_log_count: Number of log entries discarded because
                 the log queue was full.
         """
-        self._enable_ansi_support()
+        if colored:
+            self._enable_ansi_support()
 
         self._verbose = verbose
+        self._colored = colored
         self._time_format = time_format
         self._payload_open = payload_open
         self._payload_close = payload_close
@@ -133,7 +132,9 @@ class Console:
         return self._dropped_log_count
 
     def _apply_color(self, string: str, color: Color) -> str:
-        """Wrap ``string`` with the given ANSI color and a reset code."""
+        """Apply the given ANSI color to `string` when `_colored` is enabled."""
+        if not self._colored:
+            return string
         return f"{color}{string}{Color.RESET}"
 
     def _format_time(self, include_time: bool) -> str:
