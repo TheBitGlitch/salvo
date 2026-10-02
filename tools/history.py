@@ -7,6 +7,7 @@ from cyclopts.validators import Number
 from cyclopts.parameter import Parameter
 
 from default_path import DefaultPath
+from cli.helpers import register_manage_command
 
 
 class History:
@@ -123,6 +124,7 @@ class History:
         self._PATH.unlink(missing_ok=True)
 
 
+@register_manage_command
 def history(
     number: Annotated[
         int,
@@ -155,7 +157,3 @@ def history(
         return
 
     _history.show(n=number)
-
-
-# CLI entry point for this tool; used by the manage subcommand for automatic discovery.
-COMMAND = history
