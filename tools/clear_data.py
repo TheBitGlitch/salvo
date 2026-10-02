@@ -8,7 +8,7 @@ from cli.helpers import register_manage_command
 def clear_data() -> None:
     """Clears the application's data."""
     proceed = input(
-        "This will permanently delete all salvo data.\nProceed (y/n)? "
+        "This will permanently delete all salvo data. Proceed (y/n)? "
     ).lower()
 
     if proceed not in ("y", "yes"):
