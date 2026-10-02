@@ -107,6 +107,12 @@ point at a different remote.
 
 ---
 
+### Uninstallation
+```bash
+salvo manage clear-data
+pip uninstall salvo
+```
+
 ## Usage
 
 ### Basic run
