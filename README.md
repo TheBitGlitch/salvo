@@ -104,8 +104,7 @@ This downloads `endpoints.json` into the platform-specific user data directory
 and stores its ETag in the cache. Subsequent syncs use `If-None-Match` to avoid
 redundant downloads. Use `--force` to bypass the ETag, or `--source <URL>` to
 point at a different remote.
-
----
+
 
 ## Uninstallation
 
@@ -113,6 +112,8 @@ point at a different remote.
 salvo manage clear-data
 pip uninstall salvo
 ```
+
+---
 
 ## Usage
 
