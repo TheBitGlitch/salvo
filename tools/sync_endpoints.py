@@ -9,6 +9,7 @@ from urllib.error import HTTPError, URLError
 from cyclopts.parameter import Parameter
 
 from default_path import DefaultPath
+from cli.helpers import register_manage_command
 
 DEFAULT_REMOTE_SOURCE = (
     "https://raw.githubusercontent.com/TheBitGlitch/"
@@ -175,6 +176,7 @@ class Synchronizer:
         return SyncResult.FAILED
 
 
+@register_manage_command
 def sync_endpoints(
     source: Annotated[
         str,
