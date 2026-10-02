@@ -1,8 +1,10 @@
 import shutil
 
 from default_path import DefaultPath
+from cli.helpers import register_manage_command
 
 
+@register_manage_command
 def clear_data() -> None:
     """Clears the application's data."""
     proceed = input(
@@ -26,7 +28,3 @@ def clear_data() -> None:
 
     else:
         print("Data cleared successfully.\n")
-
-
-# CLI entry point for this tool; used by the manage subcommand for automatic discovery.
-COMMAND = clear_data
