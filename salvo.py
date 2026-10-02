@@ -33,9 +33,9 @@ def graceful_exit(status: int = 0) -> None:
 
 
 def main() -> None:
-    HISTORY_BLACK_LIST = ("manage history",)
+    HISTORY_BLACKLIST = ("manage history", "clear-data",)
 
-    if invocation := get_invocation(HISTORY_BLACK_LIST):
+    if invocation := get_invocation(HISTORY_BLACKLIST):
         History.add(invocation)
 
     # Management commands complete their work without producing runtime arguments.
