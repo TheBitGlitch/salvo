@@ -484,7 +484,7 @@ class Console:
             log_id=request_id,
         )
 
-    def summary(self, success: int, failure: int, total_time: float) -> None:
+    def summary(self, success: int, failure: int, total_time: float, **kwargs) -> None:
         """
         Emit a final aggregated summary of system execution.
 
@@ -503,14 +503,15 @@ class Console:
         message = (
             f"Time: {total_time:.1f}s | "
             f"Total: {total} | Success: {success} | "
-            f"Failure: {failure} | Success Rate: {rate:.1f}%"
+            f"Failure: {failure} | Success Rate: {rate:.1f}% | "
+            f"Dropped Logs: {self._dropped_log_count}\n"
         )
         tag = SystemTag.SUMMARY
 
         self._emit(
             tags=(tag,),
             message=message,
-            payloads={"dropped_logs": self._dropped_log_count},
+            payloads=kwargs,
             color=tag.color,
             stream=sys.stderr,
         )
