@@ -8,9 +8,9 @@ class DefaultPath:
 
     BASE_DIR = Path(__file__).parent
 
-    DATA_DIR = user_data_path("salvo")
+    DATA_DIR = user_data_path("salvo", appauthor=False)
     ENDPOINTS_JSON = DATA_DIR / "endpoints.json"
     HISTORY = DATA_DIR / ".history"
 
-    CACHE_DIR = user_cache_path("salvo")
+    CACHE_DIR = user_cache_path("salvo", appauthor=False)
     ENDPOINTS_ETAG = CACHE_DIR / "endpoints.etag"
