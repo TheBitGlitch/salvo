@@ -29,7 +29,7 @@ def manage_app() -> App:
 
     for _, module_name, _ in pkgutil.iter_modules(tools.__path__):
         module = importlib.import_module(f"tools.{module_name}")
-        command = getattr(module, "COMMAND", None)
+        command = getattr(module, "__MANAGE_COMMAND__", None)
 
         if callable(command):
             manage.command(command, name=module_name.replace("_", "-"))
