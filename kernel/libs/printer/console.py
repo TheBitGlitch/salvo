@@ -244,7 +244,7 @@ class Console:
             include_none: Whether payload entries with `None` values are included.
             log_id: Optional numeric identifier displayed as a zero-padded value.
         """
-        log_id = f"{log_id:02d}" if log_id is not None else None
+        log_id = f"[{log_id:02d}]" if log_id is not None else None
 
         log_parts = (
             self._format_time(include_time=include_time),
