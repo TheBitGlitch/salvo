@@ -504,7 +504,7 @@ class Console:
             f"Time: {total_time:.1f}s | "
             f"Total: {total} | Success: {success} | "
             f"Failure: {failure} | Success Rate: {rate:.1f}% | "
-            f"Dropped Logs: {self._dropped_log_count}\n"
+            f"Dropped Logs: {self._dropped_log_count}"
         )
         tag = SystemTag.SUMMARY
 
