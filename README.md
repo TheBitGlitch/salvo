@@ -1,9 +1,9 @@
 # Salvo
 
-An asynchronous request dispatcher for SMS-sending APIs. Salvo distributes
-requests to a target phone number across multiple endpoints using weighted
-selection, tracks per-endpoint capacity and failures, and adapts its routing at
-runtime through temporary jails and permanent removal.
+An asynchronous request dispatcher for SMS-sending APIs. Salvo is designed 
+to distribute requests to a target phone number across multiple endpoints using
+weighted selection, tracks per-endpoint capacity and failures, and adapts its routing
+at runtime through temporary jails and permanent removal.
 
 ---
 
@@ -50,8 +50,8 @@ endpoints that fail repeatedly.
 * **ETag-based endpoint synchronization** with validation and atomic file
   replacement.
 * **Command history** with automatic trimming at 5 MiB.
-* **Automatic management command discovery** for modules exposing a `COMMAND`
-  callable in the `tools/` package.
+* **Automatic management command registration** using a decorator-based discovery
+  mechanism for commands under `tools/`.
 
 ---
 
@@ -141,15 +141,16 @@ salvo run
 ```bash
 salvo manage sync-endpoints            # Download/refresh endpoints.json
 salvo manage sync-endpoints --force    # Skip the ETag check
-salvo manage clear-cache               # Remove the cache directory
+salvo manage clear-cache               # Clear the cache directory
+salvo manage clear-data                # Clear the application data
 salvo manage history                   # Show the last 20 invocations
 salvo manage history -n 50             # Show the last 50
 salvo manage history --clear           # Wipe the history file
 ```
 
-The `manage` application uses runtime module discovery: any module under
-`tools/` that exposes a callable named `COMMAND` is registered as a management
-subcommand, with underscores converted to hyphens.
+Management commands under `tools/` are registered using the `@register_manage_command` decorator.
+During application startup, Salvo imports the modules under `tools/` and retrieves each module's 
+registered command. The command name is derived from the module name, with underscores converted to hyphens.
 
 ### Example output
 
@@ -163,42 +164,42 @@ salvo run +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl
 17:38:25 [WARNING] SSL certificate verification is disabled. HTTPS requests will not verify the server certificate.
 17:38:25 [WARNING] An unreachable proxy may delay failure reports until timeout.
 17:38:25 [WARNING] Proxy fallback is enabled. After reaching the configured consecutive failure tolerance, requests will continue using a direct connection.
-17:38:26 [NOTICE] Mission started. <target: 9123456789, mode: limited, limit: 17, concurrency: 6, proxy: http://192.0.2.10:8080, endpoints: C:\Users\User\AppData\Local\salvo\salvo\endpoints.json, fail_tolerance: 6, timeout: 5, fallback: True, ssl: False, verbose: False>
+17:38:26 [NOTICE] Mission started. <target: 9123456789, mode: limited, limit: 17, concurrency: 6, proxy: http://192.0.2.10:8080, endpoints: C:\Users\User\AppData\Local\salvo\endpoints.json, fail_tolerance: 6, timeout: 5, fallback: True, ssl: False, verbose: False>
 17:38:26 [NOTICE] All 6 workers are running.
-17:38:27 [01] [SUCCESS] example.com <status_code: 200>
-17:38:27 [02] [SUCCESS] sample.org <status_code: 200>
-17:38:28 [03] [FAILURE] alpha.net <status_code: 0, error: ClientProxyConnectionError>
-17:38:29 [04] [FAILURE] beta.io <status_code: 0, error: ClientProxyConnectionError>
-17:38:29 [05] [FAILURE] gamma.dev <status_code: 0, error: ClientProxyConnectionError>
-17:38:30 [06] [FAILURE] example.com <status_code: 0, error: ClientProxyConnectionError>
-17:38:30 [07] [FAILURE] beta.io <status_code: 0, error: ClientProxyConnectionError>
-17:38:31 [08] [FAILURE] sample.org <status_code: 0, error: ClientProxyConnectionError>
+17:38:27 [01] [SUCCESS] example.com <code: 200>
+17:38:27 [02] [SUCCESS] sample.org <code: 200>
+17:38:28 [03] [FAILURE] alpha.net <code: 0, error: ClientProxyConnectionError>
+17:38:29 [04] [FAILURE] beta.io <code: 0, error: ClientProxyConnectionError>
+17:38:29 [05] [FAILURE] gamma.dev <code: 0, error: ClientProxyConnectionError>
+17:38:30 [06] [FAILURE] example.com <code: 0, error: ClientProxyConnectionError>
+17:38:30 [07] [FAILURE] beta.io <code: 0, error: ClientProxyConnectionError>
+17:38:31 [08] [FAILURE] sample.org <code: 0, error: ClientProxyConnectionError>
 17:38:31 [CRITICAL] Consecutive failure tolerance reached (6). Connection reliability has been compromised.
 17:38:31 [NOTICE] [FALLBACK] Proxy http://192.0.2.10:8080 failed 6 times. Falling back to direct connection.
-17:38:32 [09] [SUCCESS] alpha.net <status_code: 200>
-17:38:33 [10] [SUCCESS] beta.io <status_code: 200>
-17:38:34 [11] [SUCCESS] sample.org <status_code: 200>
-17:38:35 [12] [FAILURE] example.com <status_code: 429>
-17:38:35 [13] [FAILURE] example.com <status_code: 429>
-17:38:36 [14] [FAILURE] example.com <status_code: 429>
+17:38:32 [09] [SUCCESS] alpha.net <code: 200>
+17:38:33 [10] [SUCCESS] beta.io <code: 200>
+17:38:34 [11] [SUCCESS] sample.org <code: 200>
+17:38:35 [12] [FAILURE] example.com <code: 429>
+17:38:35 [13] [FAILURE] example.com <code: 429>
+17:38:36 [14] [FAILURE] example.com <code: 429>
 17:38:36 [NOTICE] [JAILED] API `example.com` jailed for 20.0s.
-17:38:37 [15] [SUCCESS] alpha.net <status_code: 200>
-17:38:38 [16] [SUCCESS] beta.io <status_code: 200>
-17:38:40 [17] [SUCCESS] sample.org <status_code: 200>
-17:38:42 [18] [SUCCESS] alpha.net <status_code: 200>
-17:38:44 [19] [SUCCESS] beta.io <status_code: 200>
-17:38:46 [20] [SUCCESS] sample.org <status_code: 200>
-17:38:48 [21] [SUCCESS] alpha.net <status_code: 200>
-17:38:50 [22] [SUCCESS] beta.io <status_code: 200>
-17:38:52 [23] [SUCCESS] sample.org <status_code: 200>
-17:38:54 [24] [SUCCESS] alpha.net <status_code: 200>
+17:38:37 [15] [SUCCESS] alpha.net <code: 200>
+17:38:38 [16] [SUCCESS] beta.io <code: 200>
+17:38:40 [17] [SUCCESS] sample.org <code: 200>
+17:38:42 [18] [SUCCESS] alpha.net <code: 200>
+17:38:44 [19] [SUCCESS] beta.io <code: 200>
+17:38:46 [20] [SUCCESS] sample.org <code: 200>
+17:38:48 [21] [SUCCESS] alpha.net <code: 200>
+17:38:50 [22] [SUCCESS] beta.io <code: 200>
+17:38:52 [23] [SUCCESS] sample.org <code: 200>
+17:38:54 [24] [SUCCESS] alpha.net <code: 200>
 17:38:56 [NOTICE] [FREED] API `example.com` freed from jail.
-17:38:57 [25] [FAILURE] example.com <status_code: 429>
-17:38:58 [26] [FAILURE] example.com <status_code: 429>
-17:38:59 [27] [FAILURE] example.com <status_code: 429>
+17:38:57 [25] [FAILURE] example.com <code: 429>
+17:38:58 [26] [FAILURE] example.com <code: 429>
+17:38:59 [27] [FAILURE] example.com <code: 429>
 17:38:59 [NOTICE] [PURGED] API `example.com` permanently removed after second jail.
-17:39:00 [28] [SUCCESS] sample.org <status_code: 200>
-17:39:01 [29] [SUCCESS] alpha.net <status_code: 200>
+17:39:00 [28] [SUCCESS] sample.org <code: 200>
+17:39:01 [29] [SUCCESS] alpha.net <code: 200>
 17:39:01 [NOTICE] Worker 02; API pool is fully depleted.
 17:39:01 [NOTICE] Worker 01; API pool is fully depleted.
 17:39:01 [NOTICE] Worker 03; API pool is fully depleted.
@@ -206,7 +207,7 @@ salvo run +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl
 17:39:01 [NOTICE] Worker 05; API pool is fully depleted.
 17:39:01 [NOTICE] Worker 06; API pool is fully depleted.
 17:39:02 [NOTICE] Mission completed.
-17:39:02 [SUMMARY] Time: 36.0s | Total: 29 | Success: 17 | Failure: 12 | Success Rate: 58.6% <dropped_logs: 0>
+17:39:02 [SUMMARY] Time: 36.0s | Total: 29 | Success: 17 | Failure: 12 | Success Rate: 58.6% | Dropped Logs: 0
 ```
 
 ---
@@ -301,7 +302,7 @@ healthy. Use Limited when you need the pool to adapt to endpoint health.
 ├── tools/                        # Auxiliary application operations
 │   ├── __init__.py
 │   ├── clear_cache.py            # Cache cleanup
-│   ├── clear_data.py             # data cleanup
+│   ├── clear_data.py             # Application data cleanup
 │   ├── history.py                # Command history
 │   └── sync_endpoints.py         # Endpoint configuration synchronization
 │
