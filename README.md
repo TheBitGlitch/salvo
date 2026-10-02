@@ -104,7 +104,8 @@ This downloads `endpoints.json` into the platform-specific user data directory
 and stores its ETag in the cache. Subsequent syncs use `If-None-Match` to avoid
 redundant downloads. Use `--force` to bypass the ETag, or `--source <URL>` to
 point at a different remote.
-
+
+
 
 ## Uninstallation
 
@@ -130,18 +131,18 @@ before being passed to the execution layer.
 
 ```text
 salvo run
-  target               Target phone number (required). Can also be specified with -t or --target.
-  -m, --mode           Execution mode: "limited" (default) or "unlimited".
-  -l, --limit          Stop after N successful requests. Limited mode only.
-  -c, --concurrency    Maximum number of concurrent workers. Default: 6.
-  -p, --proxy          HTTP/HTTPS proxy URL.
-  -e, --endpoints      Path to the endpoint configuration JSON.
-      --fail-tolerance Maximum consecutive failures before stopping. Default: 6 in limited mode.
-      --timeout        Per-request timeout in seconds. Default: 5.
-      --fallback       Fall back to a direct connection after repeated proxy failures.
-                       Limited mode only. Default: off.
-      --ssl            Enable SSL certificate verification. Default: on.
-      --verbose        Enable DEBUG logging for additional diagnostic information. Default: off.
+  target                        Target phone number (required). Can also be specified with -t or --target.
+  -m, --mode                    Execution mode: "limited" (default) or "unlimited".
+  -l, --limit                   Stop after N successful requests. Limited mode only.
+  -c, --concurrency             Maximum number of concurrent workers. Default: 6.
+  -p, --proxy                   HTTP/HTTPS proxy URL.
+  -e, --endpoints               Path to the endpoint configuration JSON.
+      --fail-tolerance          Maximum consecutive failures before stopping. Default: 6 in limited mode.
+      --timeout                 Per-request timeout in seconds. Default: 5.
+      --fallback, --no-fallback Enable or disable proxy fallback. Limited mode only. Default: off.
+      --ssl,      --no-ssl      Enable or disable SSL certificate verification. Default: on.
+      --verbose,  --no-verbose  Enable or disable DEBUG logging for additional diagnostic information. Default: off.
+      --color,    --no-color    Enable or disable colored console output. Default: on.
 ```
 
 ### Management commands
@@ -165,7 +166,7 @@ registered command. The command name is derived from the module name, with under
 The following is an example run with a success limit, an unreachable proxy, and fallback enabled. It demonstrates proxy failures, automatic fallback to a direct connection, endpoint jailing and removal, and the final execution summary.
 
 ```bash
-salvo run +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl
+salvo run +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl --no-color
 ```
 
 ```text
