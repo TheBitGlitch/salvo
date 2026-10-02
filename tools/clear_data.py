@@ -5,11 +5,11 @@ from default_path import DefaultPath
 
 def clear_data() -> None:
     """Clears the application's data."""
-    confirm = input(
+    proceed = input(
         "This will permanently delete all salvo data.\nProceed (y/n)? "
     ).lower()
 
-    if confirm not in ("y", "yes"):
+    if proceed not in ("y", "yes"):
         return
 
     try:
