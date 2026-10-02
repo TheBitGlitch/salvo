@@ -64,11 +64,11 @@ def main() -> None:
         graceful_exit(1)
         
     if runtime_args.proxy is None:
-        confirm_continue = console.input(
-            "No proxy configured. Continue with your own IP address? (y/n): "
+        proceed = console.input(
+            "No proxy configured. Using your own IP. Proceed (y/n)? "
         ).lower()
 
-        if confirm_continue not in ("y", "yes"):
+        if proceed not in ("y", "yes"):
             console.notice("Mission aborted by operator.")
             graceful_exit()
 
