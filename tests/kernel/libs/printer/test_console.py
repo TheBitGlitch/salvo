@@ -804,9 +804,9 @@ class TestSummaryDispatch:
         spy.assert_called_once_with(
             tags=(SystemTag.SUMMARY,),
             message=(
-                "Time: 12.3s | Total: 10 | Success: 8 | Failure: 2 | Success Rate: 80.0%"
+                "Time: 12.3s | Total: 10 | Success: 8 | Failure: 2 | Success Rate: 80.0% | Dropped Logs: 0"
             ),
-            payloads={"dropped_logs": 0},
+            payloads={},
             color=SystemTag.SUMMARY.color,
             stream=sys.stderr,
         )
@@ -833,8 +833,8 @@ class TestSummaryDispatch:
         console.summary(success=1, failure=0, total_time=1.0)
 
         _, kwargs = spy.call_args
-        assert kwargs["payloads"] == {"dropped_logs": 4}
-
+        assert "Dropped Logs: 4" in kwargs["message"]
+        
     def test_summary_integration_writes_to_stderr(self, monkeypatch, console: Console):
         fake_stderr = io.StringIO()
         monkeypatch.setattr(console_module.sys, "stderr", fake_stderr)
@@ -844,4 +844,4 @@ class TestSummaryDispatch:
         output = fake_stderr.getvalue()
         assert "[SUMMARY]" in output
         assert "Success Rate: 75.0%" in output
-        assert "dropped_logs: 0" in output
+        assert "Dropped Logs: 0" in output
