@@ -21,10 +21,10 @@ def clear_data() -> None:
             shutil.rmtree(DefaultPath.CACHE_DIR)
 
     except FileNotFoundError:
-        print("No data found.\n")
+        print("No data found.")
 
     except OSError as exc:
-        print(f"Failed to clear data: {exc}\n")
+        print(f"Failed to clear data: {exc}")
 
     else:
-        print("Data cleared successfully.\n")
+        print("Data cleared successfully.")
