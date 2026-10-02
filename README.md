@@ -145,6 +145,29 @@ salvo run
       --color,    --no-color    Enable or disable colored console output. Default: on.
 ```
 
+### Console output and piping
+
+Salvo separates command results from application logs:
+
+* `stdout` is reserved for the primary response output.
+* `stderr` is used for application logs, including notices, warnings, debug messages, events, and summaries.
+
+This allows response output and application logs to be redirected independently:
+
+```bash
+salvo run 09123456789 --no-color > response.txt 2> app.log
+```
+
+Use `--no-color` when redirecting output if you want the resulting text to contain no ANSI color codes.
+
+Colored output is enabled by default and can be explicitly controlled with `--color` and `--no-color`.
+
+For piping the response output to another command, `stdout` can be used directly:
+
+```bash
+salvo run 09123456789 | grep SUCCESS
+```
+
 ### Management commands
 
 ```bash
