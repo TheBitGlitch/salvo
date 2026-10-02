@@ -261,27 +261,27 @@ healthy. Use Limited when you need the pool to adapt to endpoint health.
 ├── cli/                          # Cyclopts-based CLI layer
 │   ├── __init__.py
 │   ├── app.py                    # Top-level `salvo` application
-│   ├── sub_apps.py               # `run` and auto-discovered `manage` commands
 │   ├── converters.py             # CLI argument converters
-│   ├── validators.py             # CLI argument validators
-│   ├── variants.py               # CLI execution-mode variants
-│   ├── regex_patterns.py         # Compiled regular expressions
 │   ├── exceptions.py             # CLI validation exceptions
-│   └── helpers.py                # CLI helper utilities
+│   ├── helpers.py                # CLI helper utilities
+│   ├── regex_patterns.py         # Compiled regular expressions
+│   ├── sub_apps.py               # `run` and auto-discovered `manage` commands
+│   ├── validators.py             # CLI argument validators
+│   └── variants.py               # CLI execution-mode variants
 │
 ├── kernel/
-│   ├── __init__.py
+│   ├── __init__.py 
 │   ├── api/
 │   │   ├── __init__.py
+│   │   ├── exceptions.py         # API exceptions
 │   │   ├── factory.py            # Builds API slots from endpoint config
 │   │   ├── models.py             # API data models
-│   │   ├── validator.py          # Endpoint schema validation
-│   │   └── exceptions.py         # API exceptions
+│   │   └── validator.py          # Endpoint schema validation
 │   │
 │   ├── core/
 │   │   ├── __init__.py
-│   │   ├── engine.py             # Async execution lifecycle and workers
 │   │   ├── api_pool.py           # Weighted pool and endpoint state
+│   │   ├── engine.py             # Async execution lifecycle and workers
 │   │   └── session_tracker.py    # Session statistics and stop conditions
 │   │
 │   └── libs/
@@ -296,16 +296,18 @@ healthy. Use Limited when you need the pool to adapt to endpoint health.
 │           ├── __init__.py
 │           └── fenwick_tree.py   # Fenwick (Binary Indexed) tree implementation
 │
+├── tests/                        # pytest suite
+│
 ├── tools/                        # Auxiliary application operations
 │   ├── __init__.py
-│   ├── sync_endpoints.py         # Endpoint configuration synchronization
 │   ├── clear_cache.py            # Cache cleanup
-│   └── history.py                # Command history
+│   ├── clear_data.py             # data cleanup
+│   ├── history.py                # Command history
+│   └── sync_endpoints.py         # Endpoint configuration synchronization
 │
-├── tests/                        # pytest suite
 ├── default_path.py               # Platform-specific data and cache paths
-├── salvo.py                      # Application entry point
-└── pyproject.toml                # Project metadata and packaging
+├── pyproject.toml                # Project metadata and packaging
+└── salvo.py                      # Application entry point
 ```
 
 ---
