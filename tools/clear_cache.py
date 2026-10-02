@@ -1,8 +1,10 @@
 import shutil
 
 from default_path import DefaultPath
+from cli.helpers import register_manage_command
 
 
+@register_manage_command
 def clear_cache() -> None:
     """Removes the application's cache."""
     try:
@@ -16,7 +18,3 @@ def clear_cache() -> None:
 
     else:
         print("Cache cleared successfully.\n")
-
-
-# CLI entry point for this tool; used by the manage subcommand for automatic discovery.
-COMMAND = clear_cache
