@@ -198,7 +198,7 @@ class ApiPool:
         slot = self._get_slot(index)
 
         if slot.jailed_until is not None:
-             self._console.debug(
+            self._console.debug(
                 f"Success for `{source}` arrived after it was jailed by another "
                 "worker; not clearing strikes to avoid undermining the jail."
             )
