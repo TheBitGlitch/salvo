@@ -93,6 +93,14 @@ def main() -> None:
             "requests will continue using a direct connection."
         )
 
+    console.notice(f"{api_factory.slot_count} valid API endpoints loaded.")
+
+    if api_factory.dropped_count > 0:
+        console.debug(
+            f"{api_factory.dropped_count} endpoints were dropped during "
+            "validation and will never be selectable this run."
+        )
+        
     try:
         engine = Engine(
             api_slots=api_factory.api_slots,
@@ -103,6 +111,10 @@ def main() -> None:
 
     except Exception as exc:
         console.error(f"Unexpected error: {str(exc)}")
+
+        if runtime_args.verbose:
+            raise
+            
         graceful_exit(1)
 
 
