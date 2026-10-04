@@ -79,6 +79,14 @@ class ApiPool:
         self._lock = asyncio.Lock()
         self._removed_indices: set[int] = set()
 
+        self._console.debug(
+                "API pool initialized.",
+                slots=len(self._slots),
+                total_weight=self._pool.total(),
+                strike_limit=self._strike_limit,
+                jail_duration=self._jail_duration,
+            )
+
     @property
     def strike_limit(self) -> int:
         """Returns the number of consecutive failures required to trigger a jail."""
@@ -136,12 +144,22 @@ class ApiPool:
         total = self._pool.total()
 
         if total <= 0:
+            self._console.debug(
+                "Pool selection weight is zero; every API is jailed, "
+                "removed or out of capacity."
+            )
             return None
 
         target = random.random() * total
         index = self._pool.query(target)
 
         if index is None:
+            self._console.debug(
+                "Fenwick query returned no index despite a positive total; "
+                "pool weights are likely out of sync with actual slot state.",
+                target=target,
+                total=total,
+            )
             return None
 
         slot = self._get_slot(index)
@@ -154,6 +172,11 @@ class ApiPool:
         if slot.capacity <= 0:
             self._set_weight(slot, 0.0)
             self._removed_indices.add(index)
+
+            self._console.debug(
+                f"API `{slot.call.source}` reached zero capacity and was "
+                "removed from selection (not a failure, by design)."
+            )
 
         else:
             self._set_weight(slot, float(slot.capacity * slot.ticket))
@@ -175,6 +198,10 @@ class ApiPool:
         slot = self._get_slot(index)
 
         if slot.jailed_until is not None:
+             self._console.debug(
+                f"Success for `{source}` arrived after it was jailed by another "
+                "worker; not clearing strikes to avoid undermining the jail."
+            )
             return
 
         slot.strikes = 0
@@ -200,9 +227,17 @@ class ApiPool:
         slot = self._get_slot(index)
 
         if index in self._removed_indices:
+            self._console.debug(
+                f"Failure for `{source}` arrived after it was already "
+                "permanently removed; ignoring stale result."
+            )
             return
 
         if slot.jailed_until is not None:
+            self._console.debug(
+                f"Failure for `{source}` arrived while already jailed; not "
+                "double-counting strikes toward a second jail."
+            )
             return
 
         slot.strikes += 1
@@ -256,6 +291,12 @@ class ApiPool:
                         SeverityTag.NOTICE,
                         EventTag.FREED,
                         message=f"API `{slot.call.source}` freed from jail.",
+                    )
+                    
+                else:
+                    self._console.debug(
+                        f"API `{slot.call.source}`'s jail expired, but it has "
+                        "no capacity left to restore; staying excluded."
                     )
 
     def _process_verdict(self, source: str, verdict: bool) -> None:
