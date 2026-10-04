@@ -306,7 +306,7 @@ class TestEmitSync:
             include_time=False,
             log_id=5,
         )
-        assert stream.getvalue() == f"{Color.RED}05 m{Color.RESET}\n"
+        assert stream.getvalue() == f"{Color.RED}[05] m{Color.RESET}\n"
 
     def test_log_id_none_is_omitted(self, console: Console, stream: io.StringIO):
         console._emit(
