@@ -171,13 +171,13 @@ salvo run 09123456789 | grep SUCCESS
 ### Management commands
 
 ```bash
-salvo manage sync-endpoints            # Download/refresh endpoints.json
-salvo manage sync-endpoints --force    # Skip the ETag check
-salvo manage clear-cache               # Clear the cache directory
-salvo manage clear-data                # Clear the application data
-salvo manage history                   # Show the last 20 invocations
-salvo manage history -n 50             # Show the last 50
-salvo manage history --clear           # Wipe the history file
+salvo manage sync-endpoints        # Download/refresh endpoints.json
+salvo manage sync-endpoints -f     # Skip the ETag check
+salvo manage clear-cache           # Clear the cache directory
+salvo manage clear-data            # Clear the application data
+salvo manage history               # Show the last 20 invocations
+salvo manage history -n 50         # Show the last 50
+salvo manage history -c            # Wipe the history file
 ```
 
 Management commands under `tools/` are registered using the `@register_manage_command` decorator.
