@@ -140,6 +140,10 @@ class Engine:
             await self._tracker.release_slot(refund=True)
 
             if self._api_pool.is_jailed(api_call.source):
+                self._console.debug(
+                    f"`{api_call.source}` raised {type(exc).__name__} but is "
+                    "already jailed; discarding instead of adding a strike."
+                )
                 return True, None
 
             should_continue = await self._tracker.report(
@@ -154,6 +158,11 @@ class Engine:
 
         if self._api_pool.is_jailed(api_call.source):
             await self._tracker.release_slot(refund=True)
+
+            self._console.debug(
+                f"`{api_call.source}` returned status {status_code} after "
+                "being jailed mid-flight; verdict discarded, credit refunded."
+            )
 
             self._console.response(
                 request_id=0,
@@ -209,6 +218,12 @@ class Engine:
             )
 
             if verdict is None:
+                self._console.debug(
+                    f"Worker {worker_id:02d}; discarding routing context "
+                    f"since the last result for `{api_call.source}` carried "
+                    "no usable verdict."
+                )
+                
                 previous_source = None
                 previous_verdict = None
                 continue
@@ -238,6 +253,12 @@ class Engine:
                     await self._tracker.reset_consec_fail()
                     await self._tracker.clear_stop_event()
 
+                    self._console.debug(
+                        f"Worker {worker_id:02d}; overriding should_continue "
+                        "back to True after fallback reset the stop condition "
+                        "that this same failure streak had just triggered."
+                    )
+                    
                     should_continue = True
 
             if not should_continue:
