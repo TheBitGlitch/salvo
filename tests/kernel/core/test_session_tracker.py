@@ -13,6 +13,9 @@ class FakeConsole:
     def critical(self, *args, **kwargs) -> None:
         pass
 
+    def debug(self, *args, **kwargs) -> None:
+        pass
+
 
 class TestHelpers:
 
