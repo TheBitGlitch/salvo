@@ -129,7 +129,6 @@ class SessionTracker:
                 by the released slot.
         """
         async with self._lock:
-            
             if self._active_slots <= 0:
                 self._console.debug(
                     "release_slot() called with zero active slots outstanding; "
