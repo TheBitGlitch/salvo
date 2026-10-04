@@ -101,9 +101,17 @@ class SessionTracker:
         """
         async with self._lock:
             if self.is_stopped:
+                self._console.debug(
+                    "Slot acquisition rejected; stop_event was set by another "
+                    "worker between this worker's loop check and the lock."
+                )
                 return False
 
             if self.exhausted:
+                self._console.debug(
+                    "Slot acquisition rejected; execution credits reached zero "
+                    "(success limit reached, in-flight requests still settling)."
+                )
                 return False
 
             if self._credits is not None:
@@ -121,6 +129,12 @@ class SessionTracker:
                 by the released slot.
         """
         async with self._lock:
+            
+            if self._active_slots <= 0:
+                self._console.debug(
+                    "release_slot() called with zero active slots outstanding; "
+                    "an acquire/release pair is mismatched somewhere upstream."
+                )
             # Defensive guard: release_slot() is expected to be paired with
             # a successful acquire_slot(). Clamp to zero to avoid destabilizing
             # the mission in case of an unexpected mismatch.
@@ -172,6 +186,10 @@ class SessionTracker:
             )
 
             if self._limit is not None and self._success >= self._limit:
+                self._console.debug(
+                    f"Success limit of {self._limit} reached; signaling "
+                    "workers to stop (this is the mission's intended end state)."
+                )
                 self._stop_event.set()
                 return False
 
@@ -189,6 +207,10 @@ class SessionTracker:
                 return False
 
             if self.is_stopped:
+                self._console.debug(
+                    f"Result for `{source}` recorded after the session was "
+                    "already stopped by another worker's outcome."
+                )
                 return False
 
             return True
@@ -201,6 +223,11 @@ class SessionTracker:
         longer contribute toward the configured tolerance threshold.
         """
         async with self._lock:
+            self._console.debug(
+                "Consecutive failure count reset as part of proxy fallback "
+                "recovery.",
+                previous_consec_fail=self._consec_fail,
+            )
             self._consec_fail = 0
 
     async def clear_stop_event(self) -> None:
@@ -211,4 +238,8 @@ class SessionTracker:
         to resume after being stopped.
         """
         async with self._lock:
+            self._console.debug(
+                "Stop event cleared to resume execution after falling back "
+                "to a direct connection."
+            )
             self._stop_event.clear()
