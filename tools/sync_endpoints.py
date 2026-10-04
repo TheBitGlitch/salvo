@@ -210,6 +210,3 @@ def sync_endpoints(
     else:
         print("Endpoint configuration synchronization failed.")
 
-
-# CLI entry point for this tool; used by the manage subcommand for automatic discovery.
-COMMAND = sync_endpoints
