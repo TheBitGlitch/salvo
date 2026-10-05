@@ -33,7 +33,7 @@ def graceful_exit(status: int = 0) -> None:
 
 
 def main() -> None:
-    HISTORY_BLACKLIST = ("manage history", "clear-data",)
+    HISTORY_BLACKLIST = ("history", "clear-data",)
 
     if invocation := get_invocation(HISTORY_BLACKLIST):
         History.add(invocation)
