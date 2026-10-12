@@ -61,7 +61,7 @@ class Engine:
                     status_code = response.status
 
             case _:
-                status_code = 0
+                raise ValueError(f"Unsupported HTTP method: {api_call.method!r}.")
 
         return status_code
 
@@ -142,7 +142,7 @@ class Engine:
 
             if self._api_pool.is_jailed(api_call.source):
                 self._console.debug(
-                    f"`{api_call.source}` raised {type(exc).__name__} but is "
+                    f"{api_call.source!r} raised {type(exc).__name__} but is "
                     "already jailed; discarding instead of adding a strike."
                 )
                 return True, None
@@ -160,7 +160,7 @@ class Engine:
 
             self._console.critical(
                 f"Unexpected internal error while processing "
-                f"`{api_call.source}`: {type(exc).__name__}: {exc}"
+                f"{api_call.source!r}: {type(exc).__name__}: {exc}"
             )
 
             self._tracker.stop_event.set()
@@ -172,7 +172,7 @@ class Engine:
             await self._tracker.release_slot(refund=True)
 
             self._console.debug(
-                f"`{api_call.source}` returned status {status_code} after "
+                f"{api_call.source!r} returned status {status_code} after "
                 "being jailed mid-flight; verdict discarded, credit refunded."
             )
 
@@ -232,7 +232,7 @@ class Engine:
             if verdict is None:
                 self._console.debug(
                     f"Worker {worker_id:02d}; discarding routing context "
-                    f"since the last result for `{api_call.source}` carried "
+                    f"since the last result for {api_call.source!r} carried "
                     "no usable verdict."
                 )
                 
@@ -254,8 +254,8 @@ class Engine:
                         severity=SeverityTag.NOTICE,
                         event=EventTag.FALLBACK,
                         message=(
-                            f"Proxy {self._runtime_proxy} failed "
-                            f"{self._tracker.consec_fail} times. "
+                            f"Proxy {self._runtime_proxy!r} failed "
+                            f"{self._tracker.consec_fail!r} times. "
                             "Falling back to direct connection."
                         ),
                     )
