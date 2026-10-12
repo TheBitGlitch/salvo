@@ -186,7 +186,7 @@ class SessionTracker:
 
             if self._limit is not None and self._success >= self._limit:
                 self._console.debug(
-                    f"Success limit of {self._limit} reached; signaling "
+                    f"Success limit of {self._limit!r} reached; signaling "
                     "workers to stop (this is the mission's intended end state)."
                 )
                 self._stop_event.set()
@@ -198,7 +198,7 @@ class SessionTracker:
                 and not self.is_stopped
             ):
                 self._console.critical(
-                    f"Consecutive failure tolerance reached ({self._fail_tolerance}). "
+                    f"Consecutive failure tolerance reached {self._fail_tolerance!r}. "
                     "Connection reliability has been compromised."
                 )
 
@@ -207,7 +207,7 @@ class SessionTracker:
 
             if self.is_stopped:
                 self._console.debug(
-                    f"Result for `{source}` recorded after the session was "
+                    f"Result for {source!r} recorded after the session was "
                     "already stopped by another worker's outcome."
                 )
                 return False
@@ -223,8 +223,7 @@ class SessionTracker:
         """
         async with self._lock:
             self._console.debug(
-                "Consecutive failure count reset as part of proxy fallback "
-                "recovery.",
+                "Consecutive failure count reset as part of proxy fallback recovery.",
                 previous_consec_fail=self._consec_fail,
             )
             self._consec_fail = 0
