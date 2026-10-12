@@ -174,7 +174,7 @@ class ApiPool:
             self._removed_indices.add(index)
 
             self._console.debug(
-                f"API `{slot.call.source}` reached zero capacity and was "
+                f"API {slot.call.source!r} reached zero capacity and was "
                 "removed from selection (not a failure, by design)."
             )
 
@@ -199,7 +199,7 @@ class ApiPool:
 
         if slot.jailed_until is not None:
             self._console.debug(
-                f"Success for `{source}` arrived after it was jailed by another "
+                f"Success for {source!r} arrived after it was jailed by another "
                 "worker; not clearing strikes to avoid undermining the jail."
             )
             return
@@ -228,14 +228,14 @@ class ApiPool:
 
         if index in self._removed_indices:
             self._console.debug(
-                f"Failure for `{source}` arrived after it was already "
+                f"Failure for {source!r} arrived after it was already "
                 "permanently removed; ignoring stale result."
             )
             return
 
         if slot.jailed_until is not None:
             self._console.debug(
-                f"Failure for `{source}` arrived while already jailed; not "
+                f"Failure for {source!r} arrived while already jailed; not "
                 "double-counting strikes toward a second jail."
             )
             return
@@ -252,7 +252,7 @@ class ApiPool:
             self._console.event(
                 SeverityTag.NOTICE,
                 EventTag.PURGED,
-                message=f"API `{source}` permanently removed after second jail.",
+                message=f"API {source!r} permanently removed after second jail.",
             )
 
         else:
@@ -265,7 +265,7 @@ class ApiPool:
             self._console.event(
                 SeverityTag.NOTICE,
                 EventTag.JAILED,
-                message=f"API `{source}` jailed for {self._jail_duration}s.",
+                message=f"API {source!r} jailed for {self._jail_duration}s.",
             )
 
     def _release_expired_jails(self) -> None:
@@ -290,12 +290,12 @@ class ApiPool:
                     self._console.event(
                         SeverityTag.NOTICE,
                         EventTag.FREED,
-                        message=f"API `{slot.call.source}` freed from jail.",
+                        message=f"API {slot.call.source!r} freed from jail.",
                     )
                     
                 else:
                     self._console.debug(
-                        f"API `{slot.call.source}`'s jail expired, but it has "
+                        f"API {slot.call.source!r} jail expired, but it has "
                         "no capacity left to restore; staying excluded."
                     )
 
