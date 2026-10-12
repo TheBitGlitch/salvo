@@ -103,13 +103,13 @@ class RuntimeArgs:
     ] = None
 
     timeout: Annotated[
-        int,
+        float,
         Parameter(
             name="--timeout",
             help="Request timeout in seconds.",
-            validator=Number(gte=1),
+            validator=Number(gte=0),
         ),
-    ] = 5
+    ] = 5.0
 
     fallback: Annotated[
         bool,
