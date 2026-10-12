@@ -205,7 +205,7 @@ def sync_endpoints(
         print("Endpoint configuration synchronized successfully.")
 
     elif result is SyncResult.UNCHANGED:
-        print("Endpoint configuration is already up to date. Use `-f` or `--force` to download it anyway.")
+        print("Endpoint configuration is already up to date. Use '-f' or '--force' to download it anyway.")
 
     else:
         print("Endpoint configuration synchronization failed.")
