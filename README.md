@@ -206,15 +206,15 @@ salvo run +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl --no
 17:38:30 [06] [FAILURE] example.com <code: 0, error: ClientProxyConnectionError>
 17:38:30 [07] [FAILURE] beta.io <code: 0, error: ClientProxyConnectionError>
 17:38:31 [08] [FAILURE] sample.org <code: 0, error: ClientProxyConnectionError>
-17:38:31 [CRITICAL] Consecutive failure tolerance reached (6). Connection reliability has been compromised.
-17:38:31 [NOTICE] [FALLBACK] Proxy http://192.0.2.10:8080 failed 6 times. Falling back to direct connection.
+17:38:31 [CRITICAL] Consecutive failure tolerance reached '6'. Connection reliability has been compromised.
+17:38:31 [NOTICE] [FALLBACK] Proxy 'http://192.0.2.10:8080' failed 6 times. Falling back to direct connection.
 17:38:32 [09] [SUCCESS] alpha.net <code: 200>
 17:38:33 [10] [SUCCESS] beta.io <code: 200>
 17:38:34 [11] [SUCCESS] sample.org <code: 200>
 17:38:35 [12] [FAILURE] example.com <code: 429>
 17:38:35 [13] [FAILURE] example.com <code: 429>
 17:38:36 [14] [FAILURE] example.com <code: 429>
-17:38:36 [NOTICE] [JAILED] API `example.com` jailed for 20.0s.
+17:38:36 [NOTICE] [JAILED] API 'example.com' jailed for 20.0s.
 17:38:37 [15] [SUCCESS] alpha.net <code: 200>
 17:38:38 [16] [SUCCESS] beta.io <code: 200>
 17:38:40 [17] [SUCCESS] sample.org <code: 200>
@@ -225,11 +225,11 @@ salvo run +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl --no
 17:38:50 [22] [SUCCESS] beta.io <code: 200>
 17:38:52 [23] [SUCCESS] sample.org <code: 200>
 17:38:54 [24] [SUCCESS] alpha.net <code: 200>
-17:38:56 [NOTICE] [FREED] API `example.com` freed from jail.
+17:38:56 [NOTICE] [FREED] API 'example.com' freed from jail.
 17:38:57 [25] [FAILURE] example.com <code: 429>
 17:38:58 [26] [FAILURE] example.com <code: 429>
 17:38:59 [27] [FAILURE] example.com <code: 429>
-17:38:59 [NOTICE] [PURGED] API `example.com` permanently removed after second jail.
+17:38:59 [NOTICE] [PURGED] API 'example.com' permanently removed after second jail.
 17:39:00 [28] [SUCCESS] sample.org <code: 200>
 17:39:01 [29] [SUCCESS] alpha.net <code: 200>
 17:39:01 [NOTICE] Worker 02; API pool is fully depleted.
