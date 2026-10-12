@@ -255,7 +255,7 @@ class Engine:
                         event=EventTag.FALLBACK,
                         message=(
                             f"Proxy {self._runtime_proxy!r} failed "
-                            f"{self._tracker.consec_fail!r} times. "
+                            f"{self._tracker.consec_fail} times. "
                             "Falling back to direct connection."
                         ),
                     )
