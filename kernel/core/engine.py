@@ -4,6 +4,7 @@ import asyncio
 from typing import TYPE_CHECKING
 
 from aiohttp import ClientSession, TCPConnector
+from aiohttp.client_exceptions import ClientError
 from fake_useragent import UserAgent
 
 from .api_pool import ApiPool
@@ -136,7 +137,7 @@ class Engine:
                 proxy=self._runtime_proxy,
             )
 
-        except Exception as exc:
+        except (ClientError, TimeoutError) as exc:
             await self._tracker.release_slot(refund=True)
 
             if self._api_pool.is_jailed(api_call.source):
@@ -153,6 +154,17 @@ class Engine:
             )
 
             return should_continue, False
+
+        except Exception as exc:
+            await self._tracker.release_slot(refund=True)
+
+            self._console.critical(
+                f"Unexpected internal error while processing "
+                f"`{api_call.source}`: {type(exc).__name__}: {exc}"
+            )
+
+            self._tracker.stop_event.set()
+            return False, None
 
         verdict = self._tracker.response_verdict(status_code)
 
