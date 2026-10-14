@@ -323,7 +323,7 @@ class TestHandleFailure:
         console.event.assert_called_once_with(
             SeverityTag.NOTICE,
             EventTag.JAILED,
-            message=f"API `{slots[0].call.source}` jailed for {pool.jail_duration}s.",
+            message=f"API {slots[0].call.source!r} jailed for {pool.jail_duration}s.",
         )
 
     def test_permanently_removes_slot_after_second_jail(self, make_slots, console):
@@ -339,7 +339,7 @@ class TestHandleFailure:
         console.event.assert_called_once_with(
             SeverityTag.NOTICE,
             EventTag.PURGED,
-            message=f"API `{slots[0].call.source}` permanently removed after second jail.",
+            message=f"API {slots[0].call.source!r} permanently removed after second jail.",
         )
 
 
@@ -360,7 +360,7 @@ class TestReleaseExpiredJails:
         console.event.assert_called_once_with(
             SeverityTag.NOTICE,
             EventTag.FREED,
-            message=f"API `{slots[0].call.source}` freed from jail.",
+            message=f"API {slots[0].call.source!r} freed from jail.",
         )
 
     def test_does_not_free_jail_that_has_not_expired_yet(self, make_slots, console):
