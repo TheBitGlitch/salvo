@@ -18,10 +18,16 @@ license = "MIT"
 license-files = ["LICENSE"]
 
 dependencies = [
-    "aiohttp==3.14.1",
-    "cyclopts==4.22.5",
+    "aiohttp==3.14.1; python_version < '3.14'",
+    "aiohttp==3.14.5; python_version >= '3.14'",
+
+    "cyclopts==4.22.5; python_version < '3.14'",
+    "cyclopts==5.2.0; python_version >= '3.14'",
+
     "fake-useragent==2.2.0",
-    "platformdirs==4.11.1",
+
+    "platformdirs==4.11.1; python_version < '3.14'",
+    "platformdirs==4.13.0; python_version >= '3.14'",
 ]
 
 [project.optional-dependencies]
