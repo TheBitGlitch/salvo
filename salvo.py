@@ -27,7 +27,7 @@ def check_network_access(timeout: float = 10) -> bool:
         return False
 
 
-def graceful_exit(status: int = 0) -> None:
+def terminate(status: int = 0) -> None:
     """Exits the program with the specified status code."""
     sys.exit(status)
 
@@ -45,7 +45,7 @@ def main() -> None:
     runtime_args: RuntimeArgs | None = cli_app()
 
     if runtime_args is None:
-        graceful_exit()  # No runtime execution is required.
+        terminate()  # No runtime execution is required.
 
     console = Console(
         verbose=runtime_args.verbose,
@@ -56,7 +56,7 @@ def main() -> None:
         console.error(
             "No network connection found. Please check your internet and try again."
         )
-        graceful_exit(1)
+        terminate(1)
 
     try:
         api_factory = ApiFactory(
@@ -67,7 +67,7 @@ def main() -> None:
 
     except ApiError as exc:
         console.error(str(exc))
-        graceful_exit(1)
+        terminate(1)
         
     if runtime_args.proxy is None:
         proceed = console.input(
@@ -76,7 +76,7 @@ def main() -> None:
 
         if proceed not in ("y", "yes"):
             console.notice("Mission aborted by operator.")
-            graceful_exit()
+            terminate()
 
     console.clear_screen()
     
@@ -118,7 +118,7 @@ def main() -> None:
         if runtime_args.verbose:
             raise
             
-        graceful_exit(1)
+        terminate(1)
 
 
 if __name__ == "__main__":
@@ -126,4 +126,4 @@ if __name__ == "__main__":
         main()
 
     except KeyboardInterrupt:
-        graceful_exit()
+        terminate()
