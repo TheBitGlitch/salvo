@@ -184,15 +184,15 @@ class TestClearScreen:
 class TestApplyColor:
     def test_colored_false_is_no_op(self):
         console = Console(colored=False)
-        result = console._apply_color("hello", Color.RED)
+        result = console._paint("hello", Color.RED)
         assert result == "hello"
         
     def test_wraps_string_with_color_and_reset(self, console: Console):
-        result = console._apply_color("hello", Color.RED)
+        result = console._paint("hello", Color.RED)
         assert result == f"{Color.RED}hello{Color.RESET}"
 
     def test_empty_string(self, console: Console):
-        result = console._apply_color("", Color.GREEN)
+        result = console._paint("", Color.GREEN)
         assert result == f"{Color.GREEN}{Color.RESET}"
 
 
