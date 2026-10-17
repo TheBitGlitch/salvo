@@ -181,7 +181,7 @@ class TestClearScreen:
         fake_stdout.flush.assert_called_once()
 
 
-class TestApplyColor:
+class TestPainting:
     def test_colored_false_is_no_op(self):
         console = Console(colored=False)
         result = console._paint("hello", Color.RED)
