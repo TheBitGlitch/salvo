@@ -132,7 +132,7 @@ class Console:
         """Return the number of log entries dropped because the queue was full."""
         return self._dropped_log_count
 
-    def _apply_color(self, string: str, color: Color) -> str:
+    def _paint(self, string: str, color: Color) -> str:
         """Apply the given ANSI color to `string` when `_colored` is enabled."""
         if not self._colored:
             return string
@@ -255,7 +255,7 @@ class Console:
         )
 
         formatted_log = " ".join(filter(None, log_parts))
-        log = self._apply_color(formatted_log, color)
+        log = self._paint(formatted_log, color)
 
         if self._log_task is not None and not self._log_task.done():
             try:
@@ -316,7 +316,7 @@ class Console:
             prompt,
         )
         formatted_prompt = " ".join(filter(None, prompt_parts))
-        colored_prompt = self._apply_color(formatted_prompt, color)
+        colored_prompt = self._paint(formatted_prompt, color)
 
         return input(colored_prompt).strip()
 
