@@ -99,6 +99,7 @@ class RuntimeArgs:
         Parameter(
             name="--fail-tolerance",
             help="Maximum number of consecutive failures tolerated.",
+            validator=Number(gte=0),
         ),
     ] = None
 
@@ -107,7 +108,7 @@ class RuntimeArgs:
         Parameter(
             name="--timeout",
             help="Request timeout in seconds.",
-            validator=Number(gte=0),
+            validator=Number(gt=0),
         ),
     ] = 5.0
 
