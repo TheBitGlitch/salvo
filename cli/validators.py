@@ -50,7 +50,7 @@ def proxy_validator(type_, proxy_url: str | None) -> None:
     if not match:
         raise MalformedProxyUrlError(proxy_url)
 
-    scheme = match.group("scheme")
+    scheme = match.group("scheme").lower()
 
     if scheme not in ("http", "https",):
         raise UnsupportedProxyUrlError(scheme)
