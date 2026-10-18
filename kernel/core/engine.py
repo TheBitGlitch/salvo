@@ -311,13 +311,13 @@ class Engine:
                 await asyncio.gather(*workers)
 
             except asyncio.CancelledError:
-                self._console.warning("Mission aborted by operator.")
+                self._console.warning("Mission stopped by operator.")
 
             finally:
                 self._tracker.stop_event.set()
                 elapsed_time = self._current_time() - start_time
 
-                self._console.notice("Mission completed.")
+                self._console.notice("All workers stopped.")
                 self._console.summary(
                     success=self._tracker.success,
                     failure=self._tracker.failure,
