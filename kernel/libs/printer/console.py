@@ -503,7 +503,7 @@ class Console:
         rate = (success / total) * 100 if total != 0 else 0.0
 
         message = (
-            f"Time: {total_time:.1f}s | "
+            f"Duration: {total_time:.1f}s | "
             f"Total: {total} | Success: {success} | "
             f"Failure: {failure} | Success Rate: {rate:.1f}% | "
             f"Dropped Logs: {self._dropped_log_count}"
