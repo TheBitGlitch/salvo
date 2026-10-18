@@ -809,7 +809,7 @@ class TestSummaryDispatch:
         spy.assert_called_once_with(
             tags=(SystemTag.SUMMARY,),
             message=(
-                "Time: 12.3s | Total: 10 | Success: 8 | Failure: 2 | Success Rate: 80.0% | Dropped Logs: 0"
+                "Duration: 12.3s | Total: 10 | Success: 8 | Failure: 2 | Success Rate: 80.0% | Dropped Logs: 0"
             ),
             payloads={},
             color=SystemTag.SUMMARY.color,
