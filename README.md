@@ -238,8 +238,8 @@ salvo run +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl --no
 17:39:01 [NOTICE] Worker 04; API pool is fully depleted.
 17:39:01 [NOTICE] Worker 05; API pool is fully depleted.
 17:39:01 [NOTICE] Worker 06; API pool is fully depleted.
-17:39:02 [NOTICE] Mission completed.
-17:39:02 [SUMMARY] Time: 36.0s | Total: 29 | Success: 17 | Failure: 12 | Success Rate: 58.6% | Dropped Logs: 0
+17:39:02 [NOTICE] All workers stopped.
+17:39:02 [SUMMARY] Duration: 36.0s | Total: 29 | Success: 17 | Failure: 12 | Success Rate: 58.6% | Dropped Logs: 0
 ```
 
 ---
