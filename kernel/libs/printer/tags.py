@@ -25,9 +25,10 @@ class Tag(Enum):
 class SeverityTag(Tag):
     """Tags used to indicate message severity levels."""
 
-    ERROR = ("ERROR", Color.RED)
     NOTICE = ("NOTICE", Color.CYAN)
+    DEBUG = ("DEBUG", Color.LIGHT_GRAY)
     WARNING = ("WARNING", Color.YELLOW)
+    ERROR = ("ERROR", Color.RED)
     CRITICAL = ("CRITICAL", Color.MAGENTA)
 
 
@@ -44,9 +45,9 @@ class EventTag(Tag):
 class SystemTag(Tag):
     """Tags used for system-level messages."""
 
+    MANIFEST = ("MANIFEST", Color.LIGHT_CYAN)
     SUMMARY = ("SUMMARY", Color.CYAN)
-    DEBUG = ("DEBUG", Color.LIGHT_GRAY)
-
+    
 
 class ResponseTag(Tag):
     """Tags used to indicate possible outcomes from an API request."""
