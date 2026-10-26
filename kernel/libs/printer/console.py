@@ -365,7 +365,7 @@ class Console:
         if not self._verbose:
             return
 
-        tag = SystemTag.DEBUG
+        tag = SeverityTag.DEBUG
 
         self._emit(
             tags=(tag,),
