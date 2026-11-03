@@ -631,7 +631,7 @@ class TestDebugDispatch:
         console.debug("diagnostic", value=42)
 
         spy.assert_called_once_with(
-            tags=(SystemTag.DEBUG,),
+            tags=(SeverityTag.DEBUG,),
             message="diagnostic",
             payloads={"value": 42},
             color=SystemTag.DEBUG.color,
