@@ -634,7 +634,7 @@ class TestDebugDispatch:
             tags=(SeverityTag.DEBUG,),
             message="diagnostic",
             payloads={"value": 42},
-            color=SystemTag.DEBUG.color,
+            color=SeverityTag.DEBUG.color,
             stream=sys.stderr,
         )
 
