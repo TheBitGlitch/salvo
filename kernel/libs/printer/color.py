@@ -14,6 +14,7 @@ class Color(StrEnum):
     # Greens
     LIME = "\033[38;5;82m"
     MINT = "\033[38;5;46m"
+    SWAMP = "\033[38;5;64m"
     ACID = "\033[38;5;154m"
 
     # Yellows
