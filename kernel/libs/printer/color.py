@@ -2,30 +2,35 @@ from enum import StrEnum
 
 
 class Color(StrEnum):
-    """ANSI escape codes for terminal colors using standard and 256-color palettes."""
+    """Vibrant ANSI 256-color palette for terminal output."""
+    
+    # Blues
+    AZURE = "\033[38;5;39m"
+    TURQUOISE = "\033[38;5;45m"
+    AQUA = "\033[38;5;51m"
+    SKY_BLUE = "\033[38;5;117m"
+    DEEP_AQUA = "\033[38;5;44m"
 
-    BLACK = "\033[38;5;0m"
-    BLUE = "\033[94m"
-    BROWN = "\033[38;5;130m"
-    CYAN = "\033[96m"
-    GRAY = "\033[38;5;245m"
-    GREEN = "\033[92m"
-    MAGENTA = "\033[38;5;201m"
-    ORANGE = "\033[38;5;208m"
-    PINK = "\033[38;5;205m"
-    PURPLE = "\033[95m"
-    RED = "\033[91m"
-    SWAMP = "\033[38;5;64m"
-    WHITE = "\033[38;5;255m"
-    YELLOW = "\033[93m"
+    # Greens
+    LIME = "\033[38;5;82m"
+    MINT = "\033[38;5;46m"
+    ACID = "\033[38;5;154m"
 
-    LIGHT_BLUE = "\033[38;5;117m"
-    LIGHT_CYAN = "\033[38;5;159m"
-    LIGHT_GRAY = "\033[38;5;250m"
-    LIGHT_GREEN = "\033[38;5;120m"
-    LIGHT_ORANGE = "\033[38;5;215m"
-    LIGHT_PURPLE = "\033[38;5;219m"
-    LIGHT_RED = "\033[38;5;203m"
-    LIGHT_YELLOW = "\033[38;5;229m"
+    # Yellows
+    GOLD = "\033[38;5;220m"
+    VERMILION = "\033[38;5;202m"
 
+    # Reds
+    CRIMSON = "\033[38;5;196m"
+    CORAL = "\033[38;5;203m"
+    HOT_PINK = "\033[38;5;201m"
+
+    # Purples
+    VIOLET = "\033[38;5;93m"
+    LAVENDER = "\033[38;5;141m"
+
+    # Neutral
+    SLATE = "\033[38;5;244m"
+
+    # Formatting
     RESET = "\033[0m"
