@@ -489,7 +489,7 @@ class Console:
 
     def summary(self, success: int, failure: int, total_time: float, **kwargs) -> None:
         """
-        Emit a final aggregated summary of system execution.
+        Emit a final aggregated summary of system execution in multiple lines.
 
         The summary includes the total number of operations, successful and
         failed operations, success rate, total execution time, and the number
@@ -503,17 +503,25 @@ class Console:
         total = success + failure
         rate = (success / total) * 100 if total != 0 else 0.0
 
-        message = (
-            f"Duration: {total_time:.1f}s | "
-            f"Total: {total} | Success: {success} | "
-            f"Failure: {failure} | Success Rate: {rate:.1f}% | "
-            f"Dropped Logs: {self._dropped_log_count}"
-        )
         tag = SystemTag.SUMMARY
 
         self._emit(
             tags=(tag,),
-            message=message,
+            message=(
+                f"Duration: {total_time:.1f}s | "
+                f"Total: {total} | Success: {success}"
+            ),
+            payloads=kwargs,
+            color=tag.color,
+            stream=sys.stderr,
+        )
+
+        self._emit(
+            tags=(tag,),
+            message=(
+                f"Failure: {failure} | Success Rate: {rate:.1f}% | "
+                f"Dropped Logs: {self._dropped_log_count}"
+            ),
             payloads=kwargs,
             color=tag.color,
             stream=sys.stderr,
