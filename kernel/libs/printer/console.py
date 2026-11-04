@@ -299,7 +299,7 @@ class Console:
             self._log_task = None
 
     def input(
-        self, prompt: str, color: Color = Color.LIGHT_CYAN, include_time: bool = True
+        self, prompt: str, color: Color = Color.SKY_BLUE, include_time: bool = True
     ) -> str:
         """
         Display a colored prompt and wait for user input.
