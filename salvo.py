@@ -79,7 +79,9 @@ def main() -> None:
             terminate()
 
     console.clear_screen()
-    
+
+    console.manifest(runtime_args.asdict)
+
     if not runtime_args.ssl:
         console.warning(
             "SSL certificate verification is disabled. "
