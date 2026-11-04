@@ -136,6 +136,7 @@ class Console:
         """Apply the given ANSI color to `string` when `_colored` is enabled."""
         if not self._colored:
             return string
+            
         return f"{color}{string}{Color.RESET}"
 
     def _format_time(self, include_time: bool) -> str:
