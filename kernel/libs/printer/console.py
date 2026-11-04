@@ -517,7 +517,7 @@ class Console:
                     stream=sys.stderr,
                 )
                 
-    def summary(self, success: int, failure: int, total_time: float, **kwargs) -> None:
+    def summary(self, success: int, failure: int, total_time: float) -> None:
         """
         Emit a final aggregated summary of system execution in multiple lines.
 
@@ -535,24 +535,17 @@ class Console:
 
         tag = SystemTag.SUMMARY
 
-        self._emit(
-            tags=(tag,),
-            message=(
-                f"Duration: {total_time:.1f}s | "
-                f"Total: {total} | Success: {success}"
-            ),
-            payloads=kwargs,
-            color=tag.color,
-            stream=sys.stderr,
+        lines = (
+            f"Total: {total} | Success: {success} | Failure: {failure}",
+            f"Success Rate: {rate:.1f}% | Duration: {total_time:.1f}s | "
+            f"Dropped Logs: {self._dropped_log_count}",
         )
 
-        self._emit(
-            tags=(tag,),
-            message=(
-                f"Failure: {failure} | Success Rate: {rate:.1f}% | "
-                f"Dropped Logs: {self._dropped_log_count}"
-            ),
-            payloads=kwargs,
-            color=tag.color,
-            stream=sys.stderr,
-        )
+        for line in lines:
+            self._emit(
+                tags=(tag,),
+                message=line,
+                payloads={},
+                color=tag.color,
+                stream=sys.stderr,
+            )
