@@ -1,7 +1,7 @@
 import asyncio
 import io
 import sys
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, call
 
 import pytest
 
@@ -184,16 +184,16 @@ class TestClearScreen:
 class TestPainting:
     def test_colored_false_is_no_op(self):
         console = Console(colored=False)
-        result = console._paint("hello", Color.RED)
+        result = console._paint("hello", Color.CRIMSON)
         assert result == "hello"
-        
+
     def test_wraps_string_with_color_and_reset(self, console: Console):
-        result = console._paint("hello", Color.RED)
-        assert result == f"{Color.RED}hello{Color.RESET}"
+        result = console._paint("hello", Color.CRIMSON)
+        assert result == f"{Color.CRIMSON}hello{Color.RESET}"
 
     def test_empty_string(self, console: Console):
-        result = console._paint("", Color.GREEN)
-        assert result == f"{Color.GREEN}{Color.RESET}"
+        result = console._paint("", Color.MINT)
+        assert result == f"{Color.MINT}{Color.RESET}"
 
 
 class TestFormatTime:
@@ -266,22 +266,22 @@ class TestEmitSync:
             tags=(SeverityTag.NOTICE,),
             message="hello",
             payloads={},
-            color=Color.CYAN,
+            color=Color.AQUA,
             stream=stream,
         )
         output = stream.getvalue()
-        assert output == f"{Color.CYAN}{frozen_time} [NOTICE] hello{Color.RESET}\n"
+        assert output == f"{Color.AQUA}{frozen_time} [NOTICE] hello{Color.RESET}\n"
 
     def test_includes_payloads(self, console: Console, stream: io.StringIO):
         console._emit(
             tags=(),
             message="hi",
             payloads={"x": 1},
-            color=Color.RED,
+            color=Color.CRIMSON,
             stream=stream,
             include_time=False,
         )
-        assert stream.getvalue() == f"{Color.RED}hi <x: 1>{Color.RESET}\n"
+        assert stream.getvalue() == f"{Color.CRIMSON}hi <x: 1>{Color.RESET}\n"
 
     def test_include_time_false_omits_timestamp(
         self, console: Console, stream: io.StringIO
@@ -290,35 +290,35 @@ class TestEmitSync:
             tags=(),
             message="hi",
             payloads={},
-            color=Color.RED,
+            color=Color.CRIMSON,
             stream=stream,
             include_time=False,
         )
-        assert stream.getvalue() == f"{Color.RED}hi{Color.RESET}\n"
+        assert stream.getvalue() == f"{Color.CRIMSON}hi{Color.RESET}\n"
 
     def test_log_id_is_zero_padded(self, console: Console, stream: io.StringIO):
         console._emit(
             tags=(),
             message="m",
             payloads={},
-            color=Color.RED,
+            color=Color.CRIMSON,
             stream=stream,
             include_time=False,
             log_id=5,
         )
-        assert stream.getvalue() == f"{Color.RED}[05] m{Color.RESET}\n"
+        assert stream.getvalue() == f"{Color.CRIMSON}[05] m{Color.RESET}\n"
 
     def test_log_id_none_is_omitted(self, console: Console, stream: io.StringIO):
         console._emit(
             tags=(),
             message="m",
             payloads={},
-            color=Color.RED,
+            color=Color.CRIMSON,
             stream=stream,
             include_time=False,
             log_id=None,
         )
-        assert stream.getvalue() == f"{Color.RED}m{Color.RESET}\n"
+        assert stream.getvalue() == f"{Color.CRIMSON}m{Color.RESET}\n"
 
     def test_include_none_false_passed_through_to_payloads(
         self, console: Console, stream: io.StringIO
@@ -327,12 +327,12 @@ class TestEmitSync:
             tags=(),
             message="m",
             payloads={"a": None},
-            color=Color.RED,
+            color=Color.CRIMSON,
             stream=stream,
             include_time=False,
             include_none=False,
         )
-        assert stream.getvalue() == f"{Color.RED}m{Color.RESET}\n"
+        assert stream.getvalue() == f"{Color.CRIMSON}m{Color.RESET}\n"
 
     def test_flushes_the_stream(self, console: Console):
         fake_stream = MagicMock()
@@ -340,7 +340,7 @@ class TestEmitSync:
             tags=(),
             message="m",
             payloads={},
-            color=Color.RED,
+            color=Color.CRIMSON,
             stream=fake_stream,
             include_time=False,
         )
@@ -353,7 +353,7 @@ class TestEmitSync:
             tags=(),
             message="m",
             payloads={},
-            color=Color.RED,
+            color=Color.CRIMSON,
             stream=stream,
             include_time=False,
         )
@@ -370,7 +370,7 @@ class TestEmitSync:
             tags=(),
             message="m",
             payloads={},
-            color=Color.RED,
+            color=Color.CRIMSON,
             stream=stream,
             include_time=False,
         )
@@ -391,7 +391,7 @@ class TestEmitQueueing:
             tags=(),
             message="queued",
             payloads={},
-            color=Color.RED,
+            color=Color.CRIMSON,
             stream=stream,
             include_time=False,
         )
@@ -417,7 +417,7 @@ class TestEmitQueueing:
             tags=(),
             message="one",
             payloads={},
-            color=Color.RED,
+            color=Color.CRIMSON,
             stream=stream,
             include_time=False,
         )
@@ -428,7 +428,7 @@ class TestEmitQueueing:
             tags=(),
             message="two",
             payloads={},
-            color=Color.RED,
+            color=Color.CRIMSON,
             stream=stream,
             include_time=False,
         )
@@ -531,7 +531,7 @@ class TestStartStopLogger:
             tags=(),
             message="pending",
             payloads={},
-            color=Color.RED,
+            color=Color.CRIMSON,
             stream=stream,
             include_time=False,
         )
@@ -570,9 +570,9 @@ class TestInput:
             return "value"
 
         monkeypatch.setattr("builtins.input", fake_input)
-        console.input("Enter name:", color=Color.LIGHT_CYAN, include_time=False)
+        console.input("Enter name:", color=Color.DEEP_AQUA, include_time=False)
 
-        assert captured["prompt"] == f"{Color.LIGHT_CYAN}Enter name:{Color.RESET}"
+        assert captured["prompt"] == f"{Color.DEEP_AQUA}Enter name:{Color.RESET}"
 
     def test_includes_timestamp_when_requested(
         self, monkeypatch, console: Console, frozen_time: str
@@ -584,9 +584,9 @@ class TestInput:
             return "value"
 
         monkeypatch.setattr("builtins.input", fake_input)
-        console.input("Name:", color=Color.RED, include_time=True)
+        console.input("Name:", color=Color.CRIMSON, include_time=True)
 
-        assert captured["prompt"] == f"{Color.RED}{frozen_time} Name:{Color.RESET}"
+        assert captured["prompt"] == f"{Color.CRIMSON}{frozen_time} Name:{Color.RESET}"
 
     def test_empty_input_strips_to_empty_string(self, monkeypatch, console: Console):
         monkeypatch.setattr("builtins.input", lambda prompt: "   ")
@@ -806,15 +806,28 @@ class TestSummaryDispatch:
 
         console.summary(success=8, failure=2, total_time=12.345)
 
-        spy.assert_called_once_with(
-            tags=(SystemTag.SUMMARY,),
-            message=(
-                "Duration: 12.3s | Total: 10 | Success: 8 | Failure: 2 | Success Rate: 80.0% | Dropped Logs: 0"
+        tag = SystemTag.SUMMARY
+
+        assert spy.call_count == 2
+
+        expected = [
+            call(
+                tags=(tag,),
+                message="Total: 10 | Success: 8 | Failure: 2",
+                payloads={},
+                color=tag.color,
+                stream=sys.stderr,
             ),
-            payloads={},
-            color=SystemTag.SUMMARY.color,
-            stream=sys.stderr,
-        )
+            call(
+                tags=(tag,),
+                message="Success Rate: 80.0% | Duration: 12.3s | Dropped Logs: 0",
+                payloads={},
+                color=tag.color,
+                stream=sys.stderr,
+            ),
+        ]
+
+        assert spy.call_args_list == expected
 
     def test_summary_handles_zero_total_without_dividing_by_zero(
         self, console: Console, monkeypatch
@@ -824,9 +837,12 @@ class TestSummaryDispatch:
 
         console.summary(success=0, failure=0, total_time=0.0)
 
-        _, kwargs = spy.call_args
-        assert "Success Rate: 0.0%" in kwargs["message"]
-        assert "Total: 0" in kwargs["message"]
+        assert spy.call_count == 2
+
+        messages = [call.kwargs["message"] for call in spy.call_args_list]
+
+        assert "Total: 0 | Success: 0 | Failure: 0" == messages[0]
+        assert "Success Rate: 0.0%" in messages[1]
 
     def test_summary_includes_current_dropped_log_count(
         self, console: Console, monkeypatch
@@ -839,7 +855,7 @@ class TestSummaryDispatch:
 
         _, kwargs = spy.call_args
         assert "Dropped Logs: 4" in kwargs["message"]
-        
+
     def test_summary_integration_writes_to_stderr(self, monkeypatch, console: Console):
         fake_stderr = io.StringIO()
         monkeypatch.setattr(console_module.sys, "stderr", fake_stderr)
