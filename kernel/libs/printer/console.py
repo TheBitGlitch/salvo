@@ -487,6 +487,36 @@ class Console:
             log_id=request_id,
         )
 
+    def manifest(self, config: dict[str, Any]) -> None:
+        """
+        Emit the application configuration as a compact, multi-line manifest.
+        
+        Configuration entries retain their original order and are distributed
+        across up to three log lines.
+        
+        Args:
+            config: Application configuration key-value pairs to display.
+        """
+        entries = [f"{k.title().replace("_", "-")}: {v}" for k, v in config.items()]
+
+        if not entries:
+            return
+
+        length = (len(entries) + 2) // 3
+        lines = [entries[i : i + length] for i in range(0, len(entries), length)]
+
+        tag = SystemTag.MANIFEST
+
+        for line in lines:
+            if line:
+                self._emit(
+                    tags=(tag,),
+                    message=", ".join(line),
+                    payloads={},
+                    color=tag.color,
+                    stream=sys.stderr,
+                )
+                
     def summary(self, success: int, failure: int, total_time: float, **kwargs) -> None:
         """
         Emit a final aggregated summary of system execution in multiple lines.
