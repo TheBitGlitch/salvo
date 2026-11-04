@@ -327,6 +327,4 @@ class Engine:
 
     def launch(self) -> None:
         """Starts the engine and runs its asynchronous execution lifecycle."""
-
-        self._console.notice(message="Mission started.", **self._runtime_args.asdict)
         asyncio.run(self._execute())
