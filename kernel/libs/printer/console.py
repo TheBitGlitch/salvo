@@ -1,6 +1,7 @@
 import sys
 import asyncio
 import ctypes as ct
+from pathlib import Path
 from datetime import datetime
 from typing import Any, TextIO
 from dataclasses import dataclass
@@ -489,33 +490,49 @@ class Console:
 
     def manifest(self, config: dict[str, Any]) -> None:
         """
-        Emit the application configuration as a compact, multi-line manifest.
+        Emit the application configuration as a compact and multi-line manifest.
         
         Configuration entries retain their original order and are distributed
-        across up to three log lines.
+        across up to multi log lines.
         
         Args:
             config: Application configuration key-value pairs to display.
         """
-        entries = [f"{k.title().replace("_", "-")}: {v}" for k, v in config.items()]
-
-        if not entries:
+        if not config:
             return
 
-        length = (len(entries) + 2) // 3
-        lines = [entries[i : i + length] for i in range(0, len(entries), length)]
+        endpoints = config["endpoints"]
+
+        if len(endpoints.parts) > 4:
+            endpoints = str(Path("...", *endpoints.parts[-4:]))
+
+        ssl = "ON" if config["ssl"] else "OFF"
+        fallback = "ON" if config["fallback"] else "OFF"
+        proxy = config["proxy"]
+
+        lines = [
+            f"Target: {config['target']} | Mode: {config['mode'].value.upper()}",
+            f"Limit: {config['limit']} | Fail-Tolerance: {config['fail_tolerance']} | Concurrency: {config['concurrency']}",
+            (
+                f"Timeout: {config['timeout']}s | Proxy: None | SSL: {ssl} | Fallback: {fallback}"
+                if proxy is None
+                else f"Timeout: {config['timeout']}s | Proxy: {proxy}"
+            ),
+            *([] if proxy is None else [f"SSL: {ssl} | Fallback: {fallback}"]),
+            f"Endpoints: {endpoints}",
+            f"Color: {'ON' if config['color'] else 'OFF'} | Verbose: {'ON' if config['verbose'] else 'OFF'}",
+        ]
 
         tag = SystemTag.MANIFEST
 
         for line in lines:
-            if line:
-                self._emit(
-                    tags=(tag,),
-                    message=", ".join(line),
-                    payloads={},
-                    color=tag.color,
-                    stream=sys.stderr,
-                )
+            self._emit(
+                tags=(tag,),
+                message=line,
+                payloads={},
+                color=tag.color,
+                stream=sys.stderr,
+            )
                 
     def summary(self, success: int, failure: int, total_time: float) -> None:
         """
@@ -531,9 +548,7 @@ class Console:
             total_time: Total execution time in seconds.
         """
         total = success + failure
-        rate = (success / total) * 100 if total != 0 else 0.0
-
-        tag = SystemTag.SUMMARY
+        rate = success / total * 100 if total else 0.0
 
         lines = (
             f"Total: {total} | Success: {success} | Failure: {failure}",
@@ -541,6 +556,8 @@ class Console:
             f"Dropped Logs: {self._dropped_log_count}",
         )
 
+        tag = SystemTag.SUMMARY
+        
         for line in lines:
             self._emit(
                 tags=(tag,),
