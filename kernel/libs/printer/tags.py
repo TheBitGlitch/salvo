@@ -25,33 +25,33 @@ class Tag(Enum):
 class SeverityTag(Tag):
     """Tags used to indicate message severity levels."""
 
-    NOTICE = ("NOTICE", Color.CYAN)
-    DEBUG = ("DEBUG", Color.LIGHT_GRAY)
-    WARNING = ("WARNING", Color.YELLOW)
-    ERROR = ("ERROR", Color.RED)
-    CRITICAL = ("CRITICAL", Color.MAGENTA)
+    NOTICE = ("NOTICE", Color.TURQUOISE)
+    DEBUG = ("DEBUG", Color.SLATE)
+    WARNING = ("WARNING", Color.GOLD)
+    ERROR = ("ERROR", Color.CRIMSON)
+    CRITICAL = ("CRITICAL", Color.HOT_PINK)
 
 
 class EventTag(Tag):
     """Tags used to indicate application lifecycle and state changes."""
 
-    PURGED = ("PURGED", Color.PINK)
-    JAILED = ("JAILED", Color.ORANGE)
-    FREED = ("FREED", Color.LIGHT_BLUE)
+    PURGED = ("PURGED", Color.VERMILION)
+    JAILED = ("JAILED", Color.VIOLET)
+    FREED = ("FREED", Color.LIME)
 
-    FALLBACK = ("FALLBACK", Color.BLUE)
+    FALLBACK = ("FALLBACK", Color.AZURE)
 
 
 class SystemTag(Tag):
     """Tags used for system-level messages."""
 
-    MANIFEST = ("MANIFEST", Color.LIGHT_CYAN)
-    SUMMARY = ("SUMMARY", Color.CYAN)
+    MANIFEST = ("MANIFEST", Color.AQUA)
+    SUMMARY = ("SUMMARY", Color.DEEP_AQUA)
     
 
 class ResponseTag(Tag):
     """Tags used to indicate possible outcomes from an API request."""
 
-    SUCCESS = ("SUCCESS", Color.GREEN)
-    FAILURE = ("FAILURE", Color.RED)
+    SUCCESS = ("SUCCESS", Color.MINT)
+    FAILURE = ("FAILURE", Color.CORAL)
     ZOMBIE = ("ZOMBIE", Color.SWAMP)
