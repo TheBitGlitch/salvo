@@ -82,9 +82,17 @@ The editable install keeps the `salvo` command linked to your working copy,
 so changes to the source code are reflected without reinstalling the package.
 
 If you want to install Salvo into the active Python environment without an
-editable install, use `pip install .`. Alternatively, use
-`pip install --user .` to install it only for your user account without
-touching system packages.
+editable install, use:
+
+```bash
+pip install .
+```
+
+Alternatively to install it only for your user account without touching system packages, use:
+
+```bash
+pip install --user .
+```
 
 To install the test tooling as well:
 
