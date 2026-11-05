@@ -193,10 +193,15 @@ salvo run +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl --no
 ```
 
 ```text
+[MANIFEST] Target: 9123456789 | Mode: LIMITED
+[MANIFEST] Limit: 17 | Fail-Tolerance: 6 | Concurrency: 6
+[MANIFEST] Timeout: 5.0s | Proxy: http://192.0.2.10:8080
+[MANIFEST] SSL: OFF | Fallback: ON
+[MANIFEST] Endpoints: ...\AppData\Local\salvo\endpoints.json
+[MANIFEST] Color: OFF | Verbose: OFF
 17:38:25 [WARNING] SSL certificate verification is disabled. HTTPS requests will not verify the server certificate.
 17:38:25 [WARNING] An unreachable proxy may delay failure reports until timeout.
 17:38:25 [WARNING] Proxy fallback is enabled. After reaching the configured consecutive failure tolerance, requests will continue using a direct connection.
-17:38:26 [NOTICE] Mission started. <target: 9123456789, mode: limited, limit: 17, concurrency: 6, proxy: http://192.0.2.10:8080, endpoints: C:\Users\User\AppData\Local\salvo\endpoints.json, fail_tolerance: 6, timeout: 5.0, fallback: True, ssl: False, verbose: False, color: False>
 17:38:26 [NOTICE] All 6 workers are running.
 17:38:27 [01] [SUCCESS] example.com <code: 200>
 17:38:27 [02] [SUCCESS] sample.org <code: 200>
@@ -239,7 +244,8 @@ salvo run +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl --no
 17:39:01 [NOTICE] Worker 05; API pool is fully depleted.
 17:39:01 [NOTICE] Worker 06; API pool is fully depleted.
 17:39:02 [NOTICE] All workers stopped.
-17:39:02 [SUMMARY] Duration: 36.0s | Total: 29 | Success: 17 | Failure: 12 | Success Rate: 58.6% | Dropped Logs: 0
+17:39:02 [SUMMARY] Total: 29 | Success: 17 | Failure: 12
+17:39:02 [SUMMARY] Success Rate: 58.6% | Duration: 36.0s | Dropped Logs: 0
 ```
 
 ---
