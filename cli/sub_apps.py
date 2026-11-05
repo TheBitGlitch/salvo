@@ -99,9 +99,9 @@ class RuntimeArgs:
         Parameter(
             name="--fail-tolerance",
             help="Maximum number of consecutive failures tolerated.",
-            validator=Number(gte=0),
+            validator=Number(gte=6),
         ),
-    ] = None
+    ] = 6
 
     timeout: Annotated[
         float,
@@ -149,8 +149,8 @@ class RuntimeArgs:
     ] = True
     
     def __post_init__(self) -> None:
-        if self.fail_tolerance is None and self.mode is ExecutionMode.LIMITED:
-            self.fail_tolerance = 6
+        if self.mode is ExecutionMode.UNLIMITED:
+            self.fail_tolerance = None
 
     @property
     def bounded(self) -> bool:
