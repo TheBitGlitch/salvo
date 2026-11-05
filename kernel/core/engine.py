@@ -101,10 +101,6 @@ class Engine:
         self._fallback_lock = asyncio.Lock()
 
         self._user_agent = UserAgent()
-        self._request_headers = {
-            "Accept": "application/json",
-            "Accept-Language": "en-US,en;q=0.9",
-        }
 
     async def _dispatch_request(
         self, session: ClientSession, api_call: ApiCall, user_agent: str
@@ -132,7 +128,7 @@ class Engine:
                 session=session,
                 api_call=api_call,
                 timeout=self._runtime_args.timeout,
-                headers={**self._request_headers, "User-Agent": user_agent},
+                headers={"User-Agent": user_agent},
                 proxy=self._runtime_proxy,
             )
 
