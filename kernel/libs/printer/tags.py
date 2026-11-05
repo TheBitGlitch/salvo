@@ -37,7 +37,7 @@ class EventTag(Tag):
 
     PURGED = ("PURGED", Color.VERMILION)
     JAILED = ("JAILED", Color.VIOLET)
-    FREED = ("FREED", Color.LIME)
+    FREED = ("FREED", Color.SKY_BLUE)
 
     FALLBACK = ("FALLBACK", Color.AZURE)
 
