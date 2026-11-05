@@ -116,7 +116,7 @@ class History:
             print("No history available.")
             return
 
-        pager = pydoc.get_pager()
+        pager = pydoc.getpager()
         pager(records)
 
     def clear(self) -> None:
