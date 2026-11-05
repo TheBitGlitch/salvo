@@ -1,6 +1,9 @@
-import asyncio
+import os
 import io
 import sys
+import asyncio
+from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch, call
 
 import pytest
@@ -795,6 +798,142 @@ class TestResponseDispatch:
 
         output = fake_stdout.getvalue()
         assert "status_code" not in output
+
+
+class TestManifestDispatch:
+    @pytest.fixture
+    def config(self):
+        return {
+            "target": "9377972212",
+            "mode": SimpleNamespace(value="limited"),
+            "limit": 20,
+            "fail_tolerance": 6,
+            "concurrency": 6,
+            "timeout": 5.0,
+            "proxy": "http://123.123.123.123:12",
+            "ssl": True,
+            "fallback": True,
+            "endpoints": Path(
+                "root", "Users", "User", "AppData", "Local", "salvo", "endpoints.json"
+            ),
+            "color": True,
+            "verbose": False,
+        }
+
+    def test_manifest_calls_emit_with_expected_arguments(
+        self, console: Console, monkeypatch, config
+    ):
+        spy = MagicMock()
+        monkeypatch.setattr(console, "_emit", spy)
+
+        console.manifest(config)
+
+        tag = SystemTag.MANIFEST
+        endpoints = (
+            f"...{os.sep}AppData{os.sep}Local{os.sep}salvo{os.sep}endpoints.json"
+        )
+
+        expected = [
+            call(
+                tags=(tag,),
+                message="Target: 9377972212 | Mode: LIMITED",
+                payloads={},
+                color=tag.color,
+                stream=sys.stderr,
+            ),
+            call(
+                tags=(tag,),
+                message="Limit: 20 | Fail-Tolerance: 6 | Concurrency: 6",
+                payloads={},
+                color=tag.color,
+                stream=sys.stderr,
+            ),
+            call(
+                tags=(tag,),
+                message="Timeout: 5.0s | Proxy: http://123.123.123.123:12",
+                payloads={},
+                color=tag.color,
+                stream=sys.stderr,
+            ),
+            call(
+                tags=(tag,),
+                message="SSL: ON | Fallback: ON",
+                payloads={},
+                color=tag.color,
+                stream=sys.stderr,
+            ),
+            call(
+                tags=(tag,),
+                message=f"Endpoints: {endpoints}",
+                payloads={},
+                color=tag.color,
+                stream=sys.stderr,
+            ),
+            call(
+                tags=(tag,),
+                message="Color: ON | Verbose: OFF",
+                payloads={},
+                color=tag.color,
+                stream=sys.stderr,
+            ),
+        ]
+
+        assert spy.call_args_list == expected
+
+    def test_manifest_combines_network_parameters_when_proxy_is_none(
+        self, console: Console, monkeypatch, config
+    ):
+        config["proxy"] = None
+
+        spy = MagicMock()
+        monkeypatch.setattr(console, "_emit", spy)
+
+        console.manifest(config)
+
+        messages = [c.kwargs["message"] for c in spy.call_args_list]
+
+        assert "Timeout: 5.0s | Proxy: None | SSL: ON | Fallback: ON" in messages
+        assert not any(message.startswith("SSL:") for message in messages)
+        assert spy.call_count == 5
+
+    def test_manifest_preserves_proxy_and_network_parameters(
+        self, console: Console, monkeypatch, config
+    ):
+        spy = MagicMock()
+        monkeypatch.setattr(console, "_emit", spy)
+
+        console.manifest(config)
+
+        messages = [c.kwargs["message"] for c in spy.call_args_list]
+
+        assert "Timeout: 5.0s | Proxy: http://123.123.123.123:12" in messages
+        assert "SSL: ON | Fallback: ON" in messages
+
+    def test_manifest_skips_empty_config(self, console: Console, monkeypatch):
+        spy = MagicMock()
+        monkeypatch.setattr(console, "_emit", spy)
+
+        console.manifest({})
+
+        spy.assert_not_called()
+
+    def test_manifest_integration_writes_to_stderr(
+        self, monkeypatch, console: Console, config
+    ):
+        fake_stderr = io.StringIO()
+        monkeypatch.setattr(console_module.sys, "stderr", fake_stderr)
+
+        console.manifest(config)
+
+        output = fake_stderr.getvalue()
+
+        assert "[MANIFEST]" in output
+        assert "Target: 9377972212" in output
+        assert "Mode: LIMITED" in output
+        assert "Proxy: http://123.123.123.123:12" in output
+        assert "SSL: ON | Fallback: ON" in output
+        assert "Endpoints: " in output
+        assert "Color: ON | Verbose: OFF" in output
 
 
 class TestSummaryDispatch:
