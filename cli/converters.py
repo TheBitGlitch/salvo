@@ -14,10 +14,10 @@ def phone_converter(type_, value: tuple[Token]) -> str:
 
     phone_number = Patterns.PHONE_NORM.sub("", phone_number)
 
-    if phone_number.startswith("98"):
+    if phone_number.startswith("0098"):
+        phone_number = phone_number[4:]
+
+    elif phone_number.startswith("98"):
         phone_number = phone_number[2:]
 
-    if phone_number.startswith("0"):
-        phone_number = phone_number[1:]
-
-    return phone_number
+    return phone_number.removeprefix("0")
