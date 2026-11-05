@@ -201,12 +201,12 @@ salvo run +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl --no
 ```
 
 ```text
-[MANIFEST] Target: 9123456789 | Mode: LIMITED
-[MANIFEST] Limit: 17 | Fail-Tolerance: 6 | Concurrency: 6
-[MANIFEST] Timeout: 5.0s | Proxy: http://192.0.2.10:8080
-[MANIFEST] SSL: OFF | Fallback: ON
-[MANIFEST] Endpoints: ...\AppData\Local\salvo\endpoints.json
-[MANIFEST] Color: OFF | Verbose: OFF
+17:38:24 [MANIFEST] Target: 9123456789 | Mode: LIMITED
+17:38:24 [MANIFEST] Limit: 17 | Fail-Tolerance: 6 | Concurrency: 6
+17:38:24 [MANIFEST] Timeout: 5.0s | Proxy: http://192.0.2.10:8080
+17:38:24 [MANIFEST] SSL: OFF | Fallback: ON
+17:38:24 [MANIFEST] Endpoints: ...\AppData\Local\salvo\endpoints.json
+17:38:25 [MANIFEST] Color: OFF | Verbose: OFF
 17:38:25 [WARNING] SSL certificate verification is disabled. HTTPS requests will not verify the server certificate.
 17:38:25 [WARNING] An unreachable proxy may delay failure reports until timeout.
 17:38:25 [WARNING] Proxy fallback is enabled. After reaching the configured consecutive failure tolerance, requests will continue using a direct connection.
