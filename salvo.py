@@ -93,7 +93,7 @@ def main() -> None:
         
     if runtime_args.fallback:
         console.warning(
-            "Proxy fallback enabled; after the failure tolerance "
+            "Proxy fallback enabled; After the failure tolerance "
             "is reached, requests switch to a direct connection."
         )
 
