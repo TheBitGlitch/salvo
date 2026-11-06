@@ -93,9 +93,8 @@ def main() -> None:
         
     if runtime_args.fallback:
         console.warning(
-            "Proxy fallback is enabled. "
-            "After reaching the configured consecutive failure tolerance, "
-            "requests will continue using a direct connection."
+            "Proxy fallback enabled; after the failure tolerance "
+            "is reached, requests switch to a direct connection."
         )
 
     console.notice(f"{api_factory.slot_count} valid API endpoints loaded.")
