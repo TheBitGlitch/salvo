@@ -12,8 +12,43 @@ from .tags import Tag, SeverityTag, EventTag, SystemTag, ResponseTag
 
 
 @dataclass(frozen=True, slots=True)
+class LogRecord:
+    """
+    Represent structured log data and its formatting options.
+
+    Attributes:
+        tags: One or more tags describing the log entry.
+        message: Main log message.
+        payloads: Additional key-value data attached to the log entry.
+        color: Color used to render the log entry.
+        stream: Output stream associated with the log entry.
+        log_id: Optional identifier displayed with the log entry.
+        include_time: Whether to include a timestamp in the formatted output.
+        payloads_include_none: Whether payloads with None values are included.
+    """
+
+    tags: Tag | Sequence[Tag]
+    message: str
+    payloads: dict[str, Any]
+    color: Color
+    stream: TextIO
+
+    log_id: int | None = None
+    include_time: bool = True
+    payloads_include_none: bool = True
+
+
+@dataclass(frozen=True, slots=True)
 class LogEntry:
-    log: str
+    """
+    Represent a log message ready for output.
+
+    Attributes:
+        content: Complete log message ready to be written.
+        stream: Output stream associated with the log message.
+    """
+
+    content: str
     stream: TextIO
 
 
@@ -67,26 +102,24 @@ class Console:
             return
 
     @staticmethod
-    def _print(
-        string: str, stream: TextIO, end: str = "\n", flush: bool = False
-    ) -> None:
+    def _print(text: str, stream: TextIO, end: str = "\n", flush: bool = False) -> None:
         """
         Write a string directly to the specified output stream.
 
         Args:
-            string: Text to write to the output stream.
+            text: Text to write to the output stream.
             stream: Output stream to write to.
             end: String appended to the output.
             flush: Whether to flush the output stream immediately.
         """
-        stream.write(f"{string}{end}")
+        stream.write(f"{text}{end}")
 
         if flush:
             stream.flush()
 
     def clear_screen(self) -> None:
         """Clear the terminal screen and move the cursor to the home position."""
-        self._print("\033[H\033[J", stream=sys.stdout, end="", flush=True)
+        self._print(text="\033[H\033[J", stream=sys.stdout, end="", flush=True)
 
     def __init__(
         self,
@@ -125,6 +158,7 @@ class Console:
 
         self._log_queue: asyncio.Queue[LogEntry | None] = asyncio.Queue(maxsize=1000)
         self._log_task: asyncio.Task[None] | None = None
+        self._log_lock: asyncio.Lock = asyncio.Lock()
 
         self._dropped_log_count = 0
 
@@ -133,12 +167,12 @@ class Console:
         """Return the number of log entries dropped because the queue was full."""
         return self._dropped_log_count
 
-    def _paint(self, string: str, color: Color) -> str:
-        """Apply the given ANSI color to `string` when `_colored` is enabled."""
+    def _paint(self, text: str, color: Color) -> str:
+        """Apply the given ANSI color to `text` when `_colored` is enabled."""
         if not self._colored:
-            return string
-            
-        return f"{color}{string}{Color.RESET}"
+            return text
+
+        return f"{color}{text}{Color.RESET}"
 
     def _format_time(self, include_time: bool) -> str:
         """
@@ -151,13 +185,37 @@ class Console:
 
         return datetime.now().strftime(self._time_format)
 
-    def _format_payloads(self, payloads: dict[str, Any], include_none: bool) -> str:
+    def _format_tags(self, tags: Tag | Sequence[Tag]) -> str:
+        """
+        Format one or more tags into a single string.
+
+        Each tag is rendered using its string representation and enclosed
+        in square brackets.
+
+        Example:
+            (NOTICE, JAILED) -> "[NOTICE] [JAILED]"
+
+        Args:
+            tags: A single tag or a sequence of console, system, event,
+                or response tags.
+
+        Returns:
+            Formatted tag string, or an empty string if no tags are provided.
+        """
+        if isinstance(tags, Tag):
+            tags = (tags,)
+
+        return " ".join(f"[{tag}]" for tag in tags)
+
+    def _format_payloads(
+        self, payloads: dict[str, Any], include_none_values: bool
+    ) -> str:
         """
         Format payload data as a delimited key-value string.
 
         Args:
             payloads: Key-value pairs to display.
-            include_none: Whether entries with `None` values should be included.
+            include_none_values: Whether entries with `None` values should be included.
 
         Returns:
             A formatted payload string, or an empty string when there is no
@@ -166,35 +224,49 @@ class Console:
         if not payloads:
             return ""
 
-        if not include_none:
-            payloads = {k: v for k, v in payloads.items() if v is not None}
+        if not include_none_values:
+            payloads = {
+                key: value for key, value in payloads.items() if value is not None
+            }
 
         if not payloads:
             return ""
 
-        formatted = ", ".join(f"{k}: {v}" for k, v in payloads.items())
+        formatted = ", ".join(f"{key}: {value}" for key, value in payloads.items())
         return f"{self._payload_open}{formatted}{self._payload_close}"
 
-    def _format_tags(self, tags: Sequence[Tag]) -> str:
+    def _format_log(self, log_record: LogRecord) -> LogEntry:
         """
-        Format a sequence of tags into a single string.
+        Format a log record into a complete log entry.
 
-        Each tag is rendered using its string representation and wrapped
-        in square brackets.
-
-        Example:
-            (NOTICE, JAILED) -> "[NOTICE] [JAILED]"
+        Combines the timestamp, log identifier, tags, message, and payloads,
+        then applies the configured color and preserves the output stream.
 
         Args:
-            tags: Sequence of console, system, event or response tags.
+            log_record: Structured log data and formatting options.
 
         Returns:
-            Formatted tag string or an empty string if no tags are provided.
+            Formatted log entry with its associated output stream.
         """
-        if not tags:
-            return ""
+        log_id = f"[{log_record.log_id:02d}]" if log_record.log_id is not None else None
 
-        return " ".join(f"[{t}]" for t in tags)
+        components = (
+            self._format_time(log_record.include_time),
+            log_id,
+            self._format_tags(log_record.tags),
+            log_record.message,
+            self._format_payloads(
+                log_record.payloads, log_record.payloads_include_none
+            ),
+        )
+
+        return LogEntry(
+            content=self._paint(
+                " ".join(filter(None, components)),
+                log_record.color,
+            ),
+            stream=log_record.stream,
+        )
 
     async def _logger_drain(self) -> None:
         """
@@ -205,71 +277,48 @@ class Console:
         entry is marked as processed after it has been handled.
         """
         while True:
-            entry = await self._log_queue.get()
+            log_entry: LogEntry | None = await self._log_queue.get()
 
             try:
-                if entry is None:
+                if log_entry is None:
                     break
 
-                self._print(string=entry.log, stream=entry.stream)
+                self._print(text=log_entry.content, stream=log_entry.stream)
+
+            except (OSError, ValueError):
+                self._dropped_log_count += 1
 
             finally:
                 self._log_queue.task_done()
 
-    def _emit(
-        self,
-        tags: Sequence[Tag],
-        message: str,
-        payloads: dict[str, Any],
-        color: Color,
-        stream: TextIO,
-        include_time: bool = True,
-        include_none: bool = True,
-        log_id: int | None = None,
-    ) -> None:
+    def _emit(self, log_record: LogRecord) -> None:
         """
-        Format and emit a log message.
+        Format and emit a log record.
 
-        If the background logger is running, the formatted entry is queued
-        for asynchronous output. Otherwise, it is written directly to the
-        specified stream.
+        Writes the formatted entry directly to its output stream when the
+        background logger is inactive. Otherwise, queues the entry for
+        asynchronous processing.
 
-        Entries are dropped when the asynchronous log queue is full.
+        If the queue is full, the entry is discarded and the dropped log
+        counter is incremented.
 
         Args:
-            tags: Tags describing the type or severity of the log.
-            message: Main log message.
-            payloads: Additional key-value data to include in the log.
-            color: ANSI color applied to the complete formatted log.
-            stream: Output stream where the log should be written.
-            include_time: Whether to include a timestamp.
-            include_none: Whether payload entries with `None` values are included.
-            log_id: Optional numeric identifier displayed as a zero-padded value.
+            log_record: Structured log data and formatting options.
         """
-        log_id = f"[{log_id:02d}]" if log_id is not None else None
-
-        log_parts = (
-            self._format_time(include_time=include_time),
-            log_id,
-            self._format_tags(tags),
-            message,
-            self._format_payloads(payloads=payloads, include_none=include_none),
-        )
-
-        formatted_log = " ".join(filter(None, log_parts))
-        log = self._paint(formatted_log, color)
+        log_entry = self._format_log(log_record)
 
         if self._log_task is not None and not self._log_task.done():
             try:
-                self._log_queue.put_nowait(LogEntry(log=log, stream=stream))
+                self._log_queue.put_nowait(log_entry)
 
             except asyncio.QueueFull:
                 self._dropped_log_count += 1
 
-        else:
-            self._print(string=log, stream=stream, flush=True)
+            return
 
-    def start_logger(self) -> None:
+        self._print(text=log_entry.content, stream=log_entry.stream, flush=True)
+
+    async def start_logger(self) -> None:
         """
         Start the background log-drain task.
 
@@ -281,7 +330,10 @@ class Console:
         Raises:
             RuntimeError: If called without a running event loop.
         """
-        if self._log_task is None or self._log_task.done():
+        async with self._log_lock:
+            if self._log_task is not None and not self._log_task.done():
+                return
+
             self._log_task = asyncio.create_task(self._logger_drain())
 
     async def stop_logger(self) -> None:
@@ -293,11 +345,20 @@ class Console:
 
         If the logger is not running, this method does nothing.
         """
-        if self._log_task is not None:
-            await self._log_queue.put(None)
-            await self._log_task
+        async with self._log_lock:
+            task = self._log_task
 
-            self._log_task = None
+            if task is None:
+                return
+
+            if not task.done():
+                await self._log_queue.put(None)
+
+            try:
+                await task
+
+            finally:
+                self._log_task = None
 
     def input(
         self, prompt: str, color: Color = Color.SKY_BLUE, include_time: bool = True
@@ -313,17 +374,16 @@ class Console:
         Returns:
             Stripped user input.
         """
-        prompt_parts = (
+        components = (
             self._format_time(include_time=include_time),
             prompt,
         )
-        formatted_prompt = " ".join(filter(None, prompt_parts))
-        colored_prompt = self._paint(formatted_prompt, color)
+        colored_prompt = self._paint(" ".join(filter(None, components)), color)
 
         return input(colored_prompt).strip()
 
     def event(
-        self, severity: SeverityTag, event: EventTag, message: str, **kwargs
+        self, severity: SeverityTag, event_type: EventTag, message: str, **payloads: Any
     ) -> None:
         """
         Emit a structured event log with severity and event tags.
@@ -335,22 +395,24 @@ class Console:
 
         Args:
             severity: Log severity level, such as `NOTICE` or `WARNING`.
-            event: Event type, such as `JAILED` or `FREED`.
+            event_type: Event type, such as `JAILED` or `FREED`.
             message: Main log message.
-            kwargs: Optional payload data attached to the event.
+            payloads: Optional payload data attached to the event.
         """
         self._emit(
-            tags=(
-                severity,
-                event,
-            ),
-            message=message,
-            payloads=kwargs,
-            color=event.color,
-            stream=sys.stderr,
+            LogRecord(
+                tags=(
+                    severity,
+                    event_type,
+                ),
+                message=message,
+                payloads=payloads,
+                color=event_type.color,
+                stream=sys.stderr,
+            )
         )
 
-    def debug(self, message: str, **kwargs) -> None:
+    def debug(self, message: str, **payloads: Any) -> None:
         """
         Emit an optional DEBUG-level log.
 
@@ -362,7 +424,7 @@ class Console:
 
         Args:
             message: Debug message content.
-            kwargs: Optional payload data.
+            payloads: Optional payload data.
         """
         if not self._verbose:
             return
@@ -370,14 +432,16 @@ class Console:
         tag = SeverityTag.DEBUG
 
         self._emit(
-            tags=(tag,),
-            message=message,
-            payloads=kwargs,
-            color=tag.color,
-            stream=sys.stderr,
+            LogRecord(
+                tags=tag,
+                message=message,
+                payloads=payloads,
+                color=tag.color,
+                stream=sys.stderr,
+            )
         )
 
-    def notice(self, message: str, **kwargs) -> None:
+    def notice(self, message: str, **payloads: Any) -> None:
         """
         Emit a NOTICE-level log.
 
@@ -385,19 +449,21 @@ class Console:
 
         Args:
             message: Log message content.
-            kwargs: Optional payload data.
+            payloads: Optional payload data.
         """
         tag = SeverityTag.NOTICE
 
         self._emit(
-            tags=(tag,),
-            message=message,
-            payloads=kwargs,
-            color=tag.color,
-            stream=sys.stderr,
+            LogRecord(
+                tags=tag,
+                message=message,
+                payloads=payloads,
+                color=tag.color,
+                stream=sys.stderr,
+            )
         )
 
-    def warning(self, message: str, **kwargs) -> None:
+    def warning(self, message: str, **payloads: Any) -> None:
         """
         Emit a WARNING-level log.
 
@@ -406,19 +472,21 @@ class Console:
 
         Args:
             message: Log message content.
-            kwargs: Optional payload data.
+            payloads: Optional payload data.
         """
         tag = SeverityTag.WARNING
 
         self._emit(
-            tags=(tag,),
-            message=message,
-            payloads=kwargs,
-            color=tag.color,
-            stream=sys.stderr,
+            LogRecord(
+                tags=tag,
+                message=message,
+                payloads=payloads,
+                color=tag.color,
+                stream=sys.stderr,
+            )
         )
 
-    def critical(self, message: str, **kwargs) -> None:
+    def critical(self, message: str, **payloads: Any) -> None:
         """
         Emit a CRITICAL-level log.
 
@@ -427,19 +495,21 @@ class Console:
 
         Args:
             message: Log message content.
-            kwargs: Optional payload data.
+            payloads: Optional payload data.
         """
         tag = SeverityTag.CRITICAL
 
         self._emit(
-            tags=(tag,),
-            message=message,
-            payloads=kwargs,
-            color=tag.color,
-            stream=sys.stderr,
+            LogRecord(
+                tags=tag,
+                message=message,
+                payloads=payloads,
+                color=tag.color,
+                stream=sys.stderr,
+            )
         )
 
-    def error(self, message: str, **kwargs) -> None:
+    def error(self, message: str, **payloads: Any) -> None:
         """
         Emit an ERROR-level log.
 
@@ -447,20 +517,22 @@ class Console:
 
         Args:
             message: Log message content.
-            kwargs: Optional payload data.
+            payloads: Optional payload data.
         """
         tag = SeverityTag.ERROR
 
         self._emit(
-            tags=(tag,),
-            message=message,
-            payloads=kwargs,
-            color=tag.color,
-            stream=sys.stderr,
+            LogRecord(
+                tags=tag,
+                message=message,
+                payloads=payloads,
+                color=tag.color,
+                stream=sys.stderr,
+            )
         )
 
     def response(
-        self, request_id: int, tag: ResponseTag, source: str, **kwargs
+        self, request_id: int, response_tag: ResponseTag, source: str, **payloads: Any
     ) -> None:
         """
         Emit a structured response log for an API request.
@@ -468,101 +540,116 @@ class Console:
         This is typically used to log request results with status tracking.
 
         Example:
-        12:34:56 [01] [SUCCESS] example.com <status_code: 200>
-        12:34:57 [02] [FAILURE] sample.com <status_code: 429>
-        12:34:59 [03] [ZOMBIE] example.com <status_code: 200>
+            12:34:56 [01] [SUCCESS] example.com <status_code: 200>
+            12:34:57 [02] [FAILURE] sample.com <status_code: 429>
+            12:34:59 [03] [ZOMBIE] example.com <status_code: 200>
 
         Args:
             request_id: Request or correlation identifier.
-            tag: Response status.
+            response_tag: Response status.
             source: API source name.
-            kwargs: Additional response payload to include in the log.
+            payloads: Additional response payload to include in the log.
         """
         self._emit(
-            tags=(tag,),
-            message=source,
-            payloads=kwargs,
-            color=tag.color,
-            stream=sys.stdout,
-            include_none=False,
-            log_id=request_id,
+            LogRecord(
+                tags=response_tag,
+                message=source,
+                payloads=payloads,
+                color=response_tag.color,
+                stream=sys.stdout,
+                payloads_include_none=False,
+                log_id=request_id,
+            )
         )
 
     def manifest(self, config: dict[str, Any]) -> None:
         """
         Emit the application configuration as a compact and multi-line manifest.
-        
+
         Configuration entries retain their original order and are distributed
-        across up to multi log lines.
-        
+        across multiple log lines.
+
         Args:
             config: Application configuration key-value pairs to display.
         """
         if not config:
             return
 
-        endpoints = config["endpoints"]
+        endpoints_path = config["endpoints"]
 
-        if len(endpoints.parts) > 4:
-            endpoints = str(Path("...", *endpoints.parts[-4:]))
+        if len(endpoints_path.parts) > 4:
+            endpoints_path = str(Path("...", *endpoints_path.parts[-4:]))
 
-        ssl = "ON" if config["ssl"] else "OFF"
-        fallback = "ON" if config["fallback"] else "OFF"
+        else:
+            endpoints_path = str(endpoints_path)
+
+        ssl_enabled = "ON" if config["ssl"] else "OFF"
+        fallback_enabled = "ON" if config["fallback"] else "OFF"
         proxy = config["proxy"]
 
-        lines = [
+        manifest_lines = [
             f"Target: {config['target']} | Mode: {config['mode'].value.upper()}",
             f"Limit: {config['limit']} | Fail-Tolerance: {config['fail_tolerance']} | Concurrency: {config['concurrency']}",
             (
-                f"Timeout: {config['timeout']}s | Proxy: None | SSL: {ssl} | Fallback: {fallback}"
+                f"Timeout: {config['timeout']}s | Proxy: None | SSL: {ssl_enabled} | Fallback: {fallback_enabled}"
                 if proxy is None
                 else f"Timeout: {config['timeout']}s | Proxy: {proxy}"
             ),
-            *([] if proxy is None else [f"SSL: {ssl} | Fallback: {fallback}"]),
-            f"Endpoints: {endpoints}",
+            *(
+                []
+                if proxy is None
+                else [f"SSL: {ssl_enabled} | Fallback: {fallback_enabled}"]
+            ),
+            f"Endpoints: {endpoints_path}",
             f"Color: {'ON' if config['color'] else 'OFF'} | Verbose: {'ON' if config['verbose'] else 'OFF'}",
         ]
 
         tag = SystemTag.MANIFEST
 
-        for line in lines:
+        for line in manifest_lines:
             self._emit(
-                tags=(tag,),
-                message=line,
-                payloads={},
-                color=tag.color,
-                stream=sys.stderr,
+                LogRecord(
+                    tags=tag,
+                    message=line,
+                    payloads={},
+                    color=tag.color,
+                    stream=sys.stderr,
+                )
             )
-                
-    def summary(self, success: int, failure: int, total_time: float) -> None:
+
+    def summary(
+        self, success_count: int, failure_count: int, duration_seconds: float
+    ) -> None:
         """
         Emit a final aggregated summary of system execution in multiple lines.
 
         The summary includes the total number of operations, successful and
-        failed operations, success rate, total execution time, and the number
+        failed operations, success rate, total execution seconds, and the number
         of logs dropped because the asynchronous queue was full.
 
         Args:
-            success: Number of successful operations.
-            failure: Number of failed operations.
-            total_time: Total execution time in seconds.
+            success_count: Number of successful operations.
+            failure_count: Number of failed operations.
+            duration_seconds: Total execution time in seconds.
         """
-        total = success + failure
-        rate = success / total * 100 if total else 0.0
+        total_count = success_count + failure_count
+        success_rate = success_count / total_count * 100 if total_count else 0.0
 
-        lines = (
-            f"Total: {total} | Success: {success} | Failure: {failure}",
-            f"Success Rate: {rate:.1f}% | Duration: {total_time:.1f}s | "
+        summary_lines = (
+            f"Total: {total_count} | Success: {success_count} | Failure: {failure_count}",
+            f"Success Rate: {success_rate:.1f}% | Duration: {duration_seconds:.1f}s | "
             f"Dropped Logs: {self._dropped_log_count}",
         )
 
         tag = SystemTag.SUMMARY
-        
-        for line in lines:
+
+        for line in summary_lines:
             self._emit(
-                tags=(tag,),
-                message=line,
-                payloads={},
-                color=tag.color,
-                stream=sys.stderr,
+                LogRecord(
+                    tags=tag,
+                    message=line,
+                    payloads={},
+                    color=tag.color,
+                    stream=sys.stderr,
+                )
             )
