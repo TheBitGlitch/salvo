@@ -10,7 +10,7 @@ import pytest
 
 import kernel.libs.printer.console as console_module
 from kernel.libs.printer import Color
-from kernel.libs.printer.console import Console, LogEntry
+from kernel.libs.printer.console import Console, LogEntry, LogRecord
 from kernel.libs.printer.tags import SeverityTag, EventTag, SystemTag, ResponseTag
 
 
@@ -217,31 +217,35 @@ class TestFormatTime:
 
 class TestFormatPayloads:
     def test_empty_dict_returns_empty_string(self, console: Console):
-        assert console._format_payloads({}, include_none=True) == ""
+        assert console._format_payloads({}, include_none_values=True) == ""
 
     def test_basic_formatting_with_delimiters(self, console: Console):
-        result = console._format_payloads({"a": 1, "b": 2}, include_none=True)
+        result = console._format_payloads({"a": 1, "b": 2}, include_none_values=True)
         assert result == "<a: 1, b: 2>"
 
     def test_uses_custom_delimiters(self):
         console = Console(payload_open="[", payload_close="]")
-        result = console._format_payloads({"a": 1}, include_none=True)
+        result = console._format_payloads({"a": 1}, include_none_values=True)
         assert result == "[a: 1]"
 
     def test_include_none_true_keeps_none_values(self, console: Console):
-        result = console._format_payloads({"a": None}, include_none=True)
+        result = console._format_payloads({"a": None}, include_none_values=True)
         assert result == "<a: None>"
 
     def test_include_none_false_filters_none_values(self, console: Console):
-        result = console._format_payloads({"a": 1, "b": None}, include_none=False)
+        result = console._format_payloads(
+            {"a": 1, "b": None}, include_none_values=False
+        )
         assert result == "<a: 1>"
 
     def test_include_none_false_all_none_returns_empty(self, console: Console):
-        result = console._format_payloads({"a": None, "b": None}, include_none=False)
+        result = console._format_payloads(
+            {"a": None, "b": None}, include_none_values=False
+        )
         assert result == ""
 
     def test_preserves_insertion_order(self, console: Console):
-        result = console._format_payloads({"z": 1, "a": 2}, include_none=True)
+        result = console._format_payloads({"z": 1, "a": 2}, include_none_values=True)
         assert result == "<z: 1, a: 2>"
 
 
@@ -250,7 +254,7 @@ class TestFormatTags:
         assert console._format_tags(()) == ""
 
     def test_single_tag(self, console: Console):
-        assert console._format_tags((SeverityTag.NOTICE,)) == "[NOTICE]"
+        assert console._format_tags(SeverityTag.NOTICE) == "[NOTICE]"
 
     def test_multiple_tags_joined_with_space(self, console: Console):
         result = console._format_tags((SeverityTag.NOTICE, EventTag.FREED))
@@ -266,23 +270,27 @@ class TestEmitSync:
         self, console: Console, stream: io.StringIO, frozen_time: str
     ):
         console._emit(
-            tags=(SeverityTag.NOTICE,),
-            message="hello",
-            payloads={},
-            color=Color.AQUA,
-            stream=stream,
+            LogRecord(
+                tags=SeverityTag.NOTICE,
+                message="hello",
+                payloads={},
+                color=Color.AQUA,
+                stream=stream,
+            )
         )
         output = stream.getvalue()
         assert output == f"{Color.AQUA}{frozen_time} [NOTICE] hello{Color.RESET}\n"
 
     def test_includes_payloads(self, console: Console, stream: io.StringIO):
         console._emit(
-            tags=(),
-            message="hi",
-            payloads={"x": 1},
-            color=Color.CRIMSON,
-            stream=stream,
-            include_time=False,
+            LogRecord(
+                tags=(),
+                message="hi",
+                payloads={"x": 1},
+                color=Color.CRIMSON,
+                stream=stream,
+                include_time=False,
+            )
         )
         assert stream.getvalue() == f"{Color.CRIMSON}hi <x: 1>{Color.RESET}\n"
 
@@ -290,36 +298,42 @@ class TestEmitSync:
         self, console: Console, stream: io.StringIO
     ):
         console._emit(
-            tags=(),
-            message="hi",
-            payloads={},
-            color=Color.CRIMSON,
-            stream=stream,
-            include_time=False,
+            LogRecord(
+                tags=(),
+                message="hi",
+                payloads={},
+                color=Color.CRIMSON,
+                stream=stream,
+                include_time=False,
+            )
         )
         assert stream.getvalue() == f"{Color.CRIMSON}hi{Color.RESET}\n"
 
     def test_log_id_is_zero_padded(self, console: Console, stream: io.StringIO):
         console._emit(
-            tags=(),
-            message="m",
-            payloads={},
-            color=Color.CRIMSON,
-            stream=stream,
-            include_time=False,
-            log_id=5,
+            LogRecord(
+                tags=(),
+                message="m",
+                payloads={},
+                color=Color.CRIMSON,
+                stream=stream,
+                include_time=False,
+                log_id=5,
+            )
         )
         assert stream.getvalue() == f"{Color.CRIMSON}[05] m{Color.RESET}\n"
 
     def test_log_id_none_is_omitted(self, console: Console, stream: io.StringIO):
         console._emit(
-            tags=(),
-            message="m",
-            payloads={},
-            color=Color.CRIMSON,
-            stream=stream,
-            include_time=False,
-            log_id=None,
+            LogRecord(
+                tags=(),
+                message="m",
+                payloads={},
+                color=Color.CRIMSON,
+                stream=stream,
+                include_time=False,
+                log_id=None,
+            )
         )
         assert stream.getvalue() == f"{Color.CRIMSON}m{Color.RESET}\n"
 
@@ -327,25 +341,29 @@ class TestEmitSync:
         self, console: Console, stream: io.StringIO
     ):
         console._emit(
-            tags=(),
-            message="m",
-            payloads={"a": None},
-            color=Color.CRIMSON,
-            stream=stream,
-            include_time=False,
-            include_none=False,
+            LogRecord(
+                tags=(),
+                message="m",
+                payloads={"a": None},
+                color=Color.CRIMSON,
+                stream=stream,
+                include_time=False,
+                payloads_include_none=False,
+            )
         )
         assert stream.getvalue() == f"{Color.CRIMSON}m{Color.RESET}\n"
 
     def test_flushes_the_stream(self, console: Console):
         fake_stream = MagicMock()
         console._emit(
-            tags=(),
-            message="m",
-            payloads={},
-            color=Color.CRIMSON,
-            stream=fake_stream,
-            include_time=False,
+            LogRecord(
+                tags=(),
+                message="m",
+                payloads={},
+                color=Color.CRIMSON,
+                stream=fake_stream,
+                include_time=False,
+            )
         )
         fake_stream.flush.assert_called_once()
 
@@ -353,12 +371,14 @@ class TestEmitSync:
         self, console: Console, stream: io.StringIO
     ):
         console._emit(
-            tags=(),
-            message="m",
-            payloads={},
-            color=Color.CRIMSON,
-            stream=stream,
-            include_time=False,
+            LogRecord(
+                tags=(),
+                message="m",
+                payloads={},
+                color=Color.CRIMSON,
+                stream=stream,
+                include_time=False,
+            )
         )
         assert console._log_queue.qsize() == 0
 
@@ -370,12 +390,14 @@ class TestEmitSync:
         console._log_task = done_task
 
         console._emit(
-            tags=(),
-            message="m",
-            payloads={},
-            color=Color.CRIMSON,
-            stream=stream,
-            include_time=False,
+            LogRecord(
+                tags=(),
+                message="m",
+                payloads={},
+                color=Color.CRIMSON,
+                stream=stream,
+                include_time=False,
+            )
         )
 
         assert console._log_queue.qsize() == 0
@@ -391,12 +413,14 @@ class TestEmitQueueing:
         console._log_task = running_task
 
         console._emit(
-            tags=(),
-            message="queued",
-            payloads={},
-            color=Color.CRIMSON,
-            stream=stream,
-            include_time=False,
+            LogRecord(
+                tags=(),
+                message="queued",
+                payloads={},
+                color=Color.CRIMSON,
+                stream=stream,
+                include_time=False,
+            )
         )
 
         # Nothing written synchronously; the entry sits in the queue instead.
@@ -406,7 +430,7 @@ class TestEmitQueueing:
         entry = console._log_queue.get_nowait()
         assert isinstance(entry, LogEntry)
         assert entry.stream is stream
-        assert "queued" in entry.log
+        assert "queued" in entry.content
 
     def test_drops_entry_and_increments_counter_when_queue_full(
         self, console: Console, stream: io.StringIO
@@ -417,30 +441,34 @@ class TestEmitQueueing:
         console._log_task = running_task
 
         console._emit(
-            tags=(),
-            message="one",
-            payloads={},
-            color=Color.CRIMSON,
-            stream=stream,
-            include_time=False,
+            LogRecord(
+                tags=(),
+                message="one",
+                payloads={},
+                color=Color.CRIMSON,
+                stream=stream,
+                include_time=False,
+            )
         )
         assert console.dropped_log_count == 0
         assert console._log_queue.qsize() == 1
 
         console._emit(
-            tags=(),
-            message="two",
-            payloads={},
-            color=Color.CRIMSON,
-            stream=stream,
-            include_time=False,
+            LogRecord(
+                tags=(),
+                message="two",
+                payloads={},
+                color=Color.CRIMSON,
+                stream=stream,
+                include_time=False,
+            )
         )
         assert console.dropped_log_count == 1
         assert console._log_queue.qsize() == 1  # still just the first entry
 
         # The surviving entry in queue must be the first one, not the dropped one.
         entry = console._log_queue.get_nowait()
-        assert "one" in entry.log
+        assert "one" in entry.content
 
 
 class TestLoggerDrain:
@@ -448,8 +476,8 @@ class TestLoggerDrain:
     async def test_consumes_entries_until_sentinel(
         self, console: Console, stream: io.StringIO
     ):
-        await console._log_queue.put(LogEntry(log="first", stream=stream))
-        await console._log_queue.put(LogEntry(log="second", stream=stream))
+        await console._log_queue.put(LogEntry(content="first", stream=stream))
+        await console._log_queue.put(LogEntry(content="second", stream=stream))
         await console._log_queue.put(None)  # sentinel
 
         await console._logger_drain()
@@ -466,8 +494,8 @@ class TestLoggerDrain:
     async def test_routes_entries_to_their_own_streams(self, console: Console):
         stream_a = io.StringIO()
         stream_b = io.StringIO()
-        await console._log_queue.put(LogEntry(log="to-a", stream=stream_a))
-        await console._log_queue.put(LogEntry(log="to-b", stream=stream_b))
+        await console._log_queue.put(LogEntry(content="to-a", stream=stream_a))
+        await console._log_queue.put(LogEntry(content="to-b", stream=stream_b))
         await console._log_queue.put(None)
 
         await console._logger_drain()
@@ -479,7 +507,7 @@ class TestLoggerDrain:
 class TestStartStopLogger:
     @pytest.mark.asyncio
     async def test_start_logger_creates_running_task(self, console: Console):
-        console.start_logger()
+        await console.start_logger()
         try:
             assert isinstance(console._log_task, asyncio.Task)
             assert not console._log_task.done()
@@ -488,9 +516,9 @@ class TestStartStopLogger:
 
     @pytest.mark.asyncio
     async def test_start_logger_is_idempotent_while_running(self, console: Console):
-        console.start_logger()
+        await console.start_logger()
         first_task = console._log_task
-        console.start_logger()
+        await console.start_logger()
         second_task = console._log_task
         try:
             assert first_task is second_task
@@ -499,14 +527,14 @@ class TestStartStopLogger:
 
     @pytest.mark.asyncio
     async def test_start_logger_replaces_a_finished_task(self, console: Console):
-        console.start_logger()
+        await console.start_logger()
         finished_task = console._log_task
         await console.stop_logger()
         assert finished_task.done()
 
         # Simulate a stale finished task reference and confirm a new one is created.
         console._log_task = finished_task
-        console.start_logger()
+        await console.start_logger()
         try:
             assert console._log_task is not finished_task
             assert not console._log_task.done()
@@ -521,7 +549,7 @@ class TestStartStopLogger:
 
     @pytest.mark.asyncio
     async def test_stop_logger_resets_task_to_none(self, console: Console):
-        console.start_logger()
+        await console.start_logger()
         await console.stop_logger()
         assert console._log_task is None
 
@@ -529,14 +557,16 @@ class TestStartStopLogger:
     async def test_stop_logger_drains_pending_entries_before_returning(
         self, console: Console, stream: io.StringIO
     ):
-        console.start_logger()
+        await console.start_logger()
         console._emit(
-            tags=(),
-            message="pending",
-            payloads={},
-            color=Color.CRIMSON,
-            stream=stream,
-            include_time=False,
+            LogRecord(
+                tags=(),
+                message="pending",
+                payloads={},
+                color=Color.CRIMSON,
+                stream=stream,
+                include_time=False,
+            )
         )
         await console.stop_logger()
 
@@ -549,7 +579,7 @@ class TestStartStopLogger:
         fake_stderr = io.StringIO()
         monkeypatch.setattr(console_module.sys, "stderr", fake_stderr)
 
-        console.start_logger()
+        await console.start_logger()
         console.notice("async hello")
         await console.stop_logger()
 
@@ -606,11 +636,13 @@ class TestEventDispatch:
         console.event(SeverityTag.WARNING, EventTag.JAILED, "user jailed", user="bob")
 
         spy.assert_called_once_with(
-            tags=(SeverityTag.WARNING, EventTag.JAILED),
-            message="user jailed",
-            payloads={"user": "bob"},
-            color=EventTag.JAILED.color,
-            stream=sys.stderr,
+            LogRecord(
+                tags=(SeverityTag.WARNING, EventTag.JAILED),
+                message="user jailed",
+                payloads={"user": "bob"},
+                color=EventTag.JAILED.color,
+                stream=sys.stderr,
+            )
         )
 
 
@@ -634,11 +666,13 @@ class TestDebugDispatch:
         console.debug("diagnostic", value=42)
 
         spy.assert_called_once_with(
-            tags=(SeverityTag.DEBUG,),
-            message="diagnostic",
-            payloads={"value": 42},
-            color=SeverityTag.DEBUG.color,
-            stream=sys.stderr,
+            LogRecord(
+                tags=SeverityTag.DEBUG,
+                message="diagnostic",
+                payloads={"value": 42},
+                color=SeverityTag.DEBUG.color,
+                stream=sys.stderr,
+            )
         )
 
     def test_debug_integration_writes_to_stderr(self, monkeypatch):
@@ -664,11 +698,13 @@ class TestNoticeDispatch:
         console.notice("all good", foo="bar")
 
         spy.assert_called_once_with(
-            tags=(SeverityTag.NOTICE,),
-            message="all good",
-            payloads={"foo": "bar"},
-            color=SeverityTag.NOTICE.color,
-            stream=sys.stderr,
+            LogRecord(
+                tags=SeverityTag.NOTICE,
+                message="all good",
+                payloads={"foo": "bar"},
+                color=SeverityTag.NOTICE.color,
+                stream=sys.stderr,
+            )
         )
 
     def test_notice_integration_writes_to_stderr(self, monkeypatch, console: Console):
@@ -693,11 +729,13 @@ class TestWarningDispatch:
         console.warning("careful", code=42)
 
         spy.assert_called_once_with(
-            tags=(SeverityTag.WARNING,),
-            message="careful",
-            payloads={"code": 42},
-            color=SeverityTag.WARNING.color,
-            stream=sys.stderr,
+            LogRecord(
+                tags=SeverityTag.WARNING,
+                message="careful",
+                payloads={"code": 42},
+                color=SeverityTag.WARNING.color,
+                stream=sys.stderr,
+            )
         )
 
 
@@ -711,11 +749,13 @@ class TestCriticalDispatch:
         console.critical("meltdown")
 
         spy.assert_called_once_with(
-            tags=(SeverityTag.CRITICAL,),
-            message="meltdown",
-            payloads={},
-            color=SeverityTag.CRITICAL.color,
-            stream=sys.stderr,
+            LogRecord(
+                tags=SeverityTag.CRITICAL,
+                message="meltdown",
+                payloads={},
+                color=SeverityTag.CRITICAL.color,
+                stream=sys.stderr,
+            )
         )
 
     def test_critical_integration_writes_to_stderr(self, monkeypatch, console: Console):
@@ -739,11 +779,13 @@ class TestErrorDispatch:
         console.error("failed", code=500)
 
         spy.assert_called_once_with(
-            tags=(SeverityTag.ERROR,),
-            message="failed",
-            payloads={"code": 500},
-            color=SeverityTag.ERROR.color,
-            stream=sys.stderr,
+            LogRecord(
+                tags=SeverityTag.ERROR,
+                message="failed",
+                payloads={"code": 500},
+                color=SeverityTag.ERROR.color,
+                stream=sys.stderr,
+            )
         )
 
     def test_error_integration_writes_to_stderr(self, monkeypatch, console: Console):
@@ -767,13 +809,15 @@ class TestResponseDispatch:
         console.response(3, ResponseTag.SUCCESS, "example.com", status_code=200)
 
         spy.assert_called_once_with(
-            tags=(ResponseTag.SUCCESS,),
-            message="example.com",
-            payloads={"status_code": 200},
-            color=ResponseTag.SUCCESS.color,
-            stream=sys.stdout,
-            include_none=False,
-            log_id=3,
+            LogRecord(
+                tags=ResponseTag.SUCCESS,
+                message="example.com",
+                payloads={"status_code": 200},
+                color=ResponseTag.SUCCESS.color,
+                stream=sys.stdout,
+                payloads_include_none=False,
+                log_id=3,
+            )
         )
 
     def test_response_integration_formats_request_id_and_source(
@@ -835,46 +879,58 @@ class TestManifestDispatch:
 
         expected = [
             call(
-                tags=(tag,),
-                message="Target: 9377972212 | Mode: LIMITED",
-                payloads={},
-                color=tag.color,
-                stream=sys.stderr,
+                LogRecord(
+                    tags=tag,
+                    message="Target: 9377972212 | Mode: LIMITED",
+                    payloads={},
+                    color=tag.color,
+                    stream=sys.stderr,
+                )
             ),
             call(
-                tags=(tag,),
-                message="Limit: 20 | Fail-Tolerance: 6 | Concurrency: 6",
-                payloads={},
-                color=tag.color,
-                stream=sys.stderr,
+                LogRecord(
+                    tags=tag,
+                    message="Limit: 20 | Fail-Tolerance: 6 | Concurrency: 6",
+                    payloads={},
+                    color=tag.color,
+                    stream=sys.stderr,
+                )
             ),
             call(
-                tags=(tag,),
-                message="Timeout: 5.0s | Proxy: http://123.123.123.123:12",
-                payloads={},
-                color=tag.color,
-                stream=sys.stderr,
+                LogRecord(
+                    tags=tag,
+                    message="Timeout: 5.0s | Proxy: http://123.123.123.123:12",
+                    payloads={},
+                    color=tag.color,
+                    stream=sys.stderr,
+                )
             ),
             call(
-                tags=(tag,),
-                message="SSL: ON | Fallback: ON",
-                payloads={},
-                color=tag.color,
-                stream=sys.stderr,
+                LogRecord(
+                    tags=tag,
+                    message="SSL: ON | Fallback: ON",
+                    payloads={},
+                    color=tag.color,
+                    stream=sys.stderr,
+                )
             ),
             call(
-                tags=(tag,),
-                message=f"Endpoints: {endpoints}",
-                payloads={},
-                color=tag.color,
-                stream=sys.stderr,
+                LogRecord(
+                    tags=tag,
+                    message=f"Endpoints: {endpoints}",
+                    payloads={},
+                    color=tag.color,
+                    stream=sys.stderr,
+                )
             ),
             call(
-                tags=(tag,),
-                message="Color: ON | Verbose: OFF",
-                payloads={},
-                color=tag.color,
-                stream=sys.stderr,
+                LogRecord(
+                    tags=tag,
+                    message="Color: ON | Verbose: OFF",
+                    payloads={},
+                    color=tag.color,
+                    stream=sys.stderr,
+                )
             ),
         ]
 
@@ -890,7 +946,7 @@ class TestManifestDispatch:
 
         console.manifest(config)
 
-        messages = [c.kwargs["message"] for c in spy.call_args_list]
+        messages = [c.args[0].message for c in spy.call_args_list]
 
         assert "Timeout: 5.0s | Proxy: None | SSL: ON | Fallback: ON" in messages
         assert not any(message.startswith("SSL:") for message in messages)
@@ -904,7 +960,7 @@ class TestManifestDispatch:
 
         console.manifest(config)
 
-        messages = [c.kwargs["message"] for c in spy.call_args_list]
+        messages = [c.args[0].message for c in spy.call_args_list]
 
         assert "Timeout: 5.0s | Proxy: http://123.123.123.123:12" in messages
         assert "SSL: ON | Fallback: ON" in messages
@@ -943,7 +999,7 @@ class TestSummaryDispatch:
         spy = MagicMock()
         monkeypatch.setattr(console, "_emit", spy)
 
-        console.summary(success=8, failure=2, total_time=12.345)
+        console.summary(success_count=8, failure_count=2, duration_seconds=12.345)
 
         tag = SystemTag.SUMMARY
 
@@ -951,18 +1007,22 @@ class TestSummaryDispatch:
 
         expected = [
             call(
-                tags=(tag,),
-                message="Total: 10 | Success: 8 | Failure: 2",
-                payloads={},
-                color=tag.color,
-                stream=sys.stderr,
+                LogRecord(
+                    tags=tag,
+                    message="Total: 10 | Success: 8 | Failure: 2",
+                    payloads={},
+                    color=tag.color,
+                    stream=sys.stderr,
+                )
             ),
             call(
-                tags=(tag,),
-                message="Success Rate: 80.0% | Duration: 12.3s | Dropped Logs: 0",
-                payloads={},
-                color=tag.color,
-                stream=sys.stderr,
+                LogRecord(
+                    tags=tag,
+                    message="Success Rate: 80.0% | Duration: 12.3s | Dropped Logs: 0",
+                    payloads={},
+                    color=tag.color,
+                    stream=sys.stderr,
+                )
             ),
         ]
 
@@ -974,11 +1034,11 @@ class TestSummaryDispatch:
         spy = MagicMock()
         monkeypatch.setattr(console, "_emit", spy)
 
-        console.summary(success=0, failure=0, total_time=0.0)
+        console.summary(success_count=0, failure_count=0, duration_seconds=0.0)
 
         assert spy.call_count == 2
 
-        messages = [call.kwargs["message"] for call in spy.call_args_list]
+        messages = [call.args[0].message for call in spy.call_args_list]
 
         assert "Total: 0 | Success: 0 | Failure: 0" == messages[0]
         assert "Success Rate: 0.0%" in messages[1]
@@ -990,16 +1050,16 @@ class TestSummaryDispatch:
         spy = MagicMock()
         monkeypatch.setattr(console, "_emit", spy)
 
-        console.summary(success=1, failure=0, total_time=1.0)
+        console.summary(success_count=1, failure_count=0, duration_seconds=1.0)
 
-        _, kwargs = spy.call_args
-        assert "Dropped Logs: 4" in kwargs["message"]
+        args, _ = spy.call_args
+        assert "Dropped Logs: 4" in args[0].message
 
     def test_summary_integration_writes_to_stderr(self, monkeypatch, console: Console):
         fake_stderr = io.StringIO()
         monkeypatch.setattr(console_module.sys, "stderr", fake_stderr)
 
-        console.summary(success=3, failure=1, total_time=2.0)
+        console.summary(success_count=3, failure_count=1, duration_seconds=2.0)
 
         output = fake_stderr.getvalue()
         assert "[SUMMARY]" in output
