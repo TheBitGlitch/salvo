@@ -247,7 +247,7 @@ class Engine:
                 ):
                     self._console.event(
                         severity=SeverityTag.NOTICE,
-                        event=EventTag.FALLBACK,
+                        event_type=EventTag.FALLBACK,
                         message=(
                             f"Proxy {self._runtime_proxy!r} failed "
                             f"{self._tracker.consec_fail} times. "
