@@ -178,7 +178,7 @@ class SessionTracker:
 
             self._console.response(
                 request_id=request_id,
-                tag=resp_tag,
+                response_tag=resp_tag,
                 source=source,
                 code=status_code,
                 error=error if error else None,
