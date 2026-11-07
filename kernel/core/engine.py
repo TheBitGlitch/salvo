@@ -313,7 +313,7 @@ class Engine:
                 elapsed_time = self._current_time() - start_time
 
                 self._console.notice("All workers stopped.")
-                 self._console.summary(
+                self._console.summary(
                     success_count=self._tracker.success,
                     failure_count=self._tracker.failure,
                     duration_seconds=elapsed_time,
