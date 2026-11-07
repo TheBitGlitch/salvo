@@ -597,7 +597,7 @@ class Console:
                 if proxy is None
                 else [f"SSL: {ssl_enabled} | Fallback: {fallback_enabled}"]
             ),
-            f"Endpoints: {str(endpoints_path})",
+            f"Endpoints: {str(endpoints_path)}",
             f"Color: {'ON' if config['color'] else 'OFF'} | Verbose: {'ON' if config['verbose'] else 'OFF'}",
         ]
 
