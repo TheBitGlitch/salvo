@@ -233,6 +233,10 @@ class Engine:
                 
                 previous_source = None
                 previous_verdict = None
+
+                if not should_continue:
+                    break
+                    
                 continue
 
             previous_source = api_call.source
