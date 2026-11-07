@@ -210,6 +210,8 @@ salvo run +989123456789 -l 17 -p http://192.0.2.10:8080 --fallback --no-ssl --no
 17:38:25 [WARNING] SSL certificate verification is disabled. HTTPS requests will not verify the server certificate.
 17:38:25 [WARNING] An unreachable proxy may delay failure reports until timeout.
 17:38:25 [WARNING] Proxy fallback enabled; After the failure tolerance is reached, requests switch to a direct connection.
+17:38:25 [NOTICE] 72 valid API endpoints loaded.
+17:38:26 [NOTICE] Press Ctrl+C to stop the mission at any time.
 17:38:26 [NOTICE] All 6 workers are running.
 17:38:27 [01] [SUCCESS] example.com <code: 200>
 17:38:27 [02] [SUCCESS] sample.org <code: 200>
