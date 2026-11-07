@@ -173,7 +173,7 @@ class Engine:
 
             self._console.response(
                 request_id=0,
-                tag=ResponseTag.ZOMBIE,
+                response_tag=ResponseTag.ZOMBIE,
                 source=api_call.source,
                 status_code=status_code,
             )
@@ -282,7 +282,7 @@ class Engine:
         Creates the HTTP session, starts the configured workers, waits for
         their completion, and reports final execution statistics.
         """
-        self._console.start_logger()
+        await self._console.start_logger()
         start_time = self._current_time()
 
         tcp_connector = TCPConnector(
@@ -313,10 +313,10 @@ class Engine:
                 elapsed_time = self._current_time() - start_time
 
                 self._console.notice("All workers stopped.")
-                self._console.summary(
-                    success=self._tracker.success,
-                    failure=self._tracker.failure,
-                    total_time=elapsed_time,
+                 self._console.summary(
+                    success_count=self._tracker.success,
+                    failure_count=self._tracker.failure,
+                    duration_seconds=elapsed_time,
                 )
 
                 await self._console.stop_logger()
