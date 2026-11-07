@@ -578,10 +578,7 @@ class Console:
         endpoints_path = config["endpoints"]
 
         if len(endpoints_path.parts) > 4:
-            endpoints_path = str(Path("...", *endpoints_path.parts[-4:]))
-
-        else:
-            endpoints_path = str(endpoints_path)
+            endpoints_path = Path("...", *endpoints_path.parts[-4:])
 
         ssl_enabled = "ON" if config["ssl"] else "OFF"
         fallback_enabled = "ON" if config["fallback"] else "OFF"
@@ -600,7 +597,7 @@ class Console:
                 if proxy is None
                 else [f"SSL: {ssl_enabled} | Fallback: {fallback_enabled}"]
             ),
-            f"Endpoints: {endpoints_path}",
+            f"Endpoints: {str(endpoints_path})",
             f"Color: {'ON' if config['color'] else 'OFF'} | Verbose: {'ON' if config['verbose'] else 'OFF'}",
         ]
 
