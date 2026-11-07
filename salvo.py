@@ -105,6 +105,8 @@ def main() -> None:
             "validation and will never be selectable this run."
         )
         
+    console.notice("Press Ctrl+C to stop the mission at any time.")
+
     try:
         engine = Engine(
             api_slots=api_factory.api_slots,
