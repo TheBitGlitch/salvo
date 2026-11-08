@@ -117,7 +117,7 @@ class RuntimeArgs:
         Parameter(
             name="--fallback",
             negative="--no-fallback",
-            help="Enable fallback to alternative endpoints.",
+            help="Switch from proxy to direct connection after --fail-tolerance consecutive failures.",
         ),
     ] = False
 
