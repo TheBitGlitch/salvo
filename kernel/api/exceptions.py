@@ -27,4 +27,4 @@ class NoValidApiEndpointFoundError(ApiError):
     """Raised when no valid API endpoint configurations are found."""
 
     def __init__(self, path: Path) -> None:
-        super().__init__(f"No valid API endpoints found in {path!r}.")
+        super().__init__(f"No valid API endpoints found in {str(path)!r}.")
