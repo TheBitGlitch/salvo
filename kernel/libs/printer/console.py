@@ -360,27 +360,30 @@ class Console:
             finally:
                 self._log_task = None
 
-    def input(
-        self, prompt: str, color: Color = Color.SKY_BLUE, include_time: bool = True
+    def prompt(
+        self, message: str, include_time: bool = True
     ) -> str:
         """
-        Display a colored prompt and wait for user input.
+        Display a formatted prompt and wait for user input.
 
         Args:
-            prompt: Text shown to the user.
-            color: ANSI color for the prompt.
+            message: Text shown to the user.
             include_time: Whether to include a timestamp.
 
         Returns:
-            Stripped user input.
+            The user's stripped input.
         """
+        tag = SystemTag.PROMPT
+
         components = (
             self._format_time(include_time=include_time),
-            prompt,
+            self._format_tags(tag),
+            message,
         )
-        colored_prompt = self._paint(" ".join(filter(None, components)), color)
 
-        return input(colored_prompt).strip()
+        return input(
+            self._paint(" ".join(filter(None, components)), tag.color)            
+        ).strip()
 
     def event(
         self, severity: SeverityTag, event_type: EventTag, message: str, **payloads: Any
