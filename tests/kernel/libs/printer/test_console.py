@@ -586,45 +586,43 @@ class TestStartStopLogger:
         assert "async hello" in fake_stderr.getvalue()
         assert console.dropped_log_count == 0
 
-
-class TestInput:
-    def test_returns_stripped_input(self, monkeypatch, console: Console):
-        monkeypatch.setattr("builtins.input", lambda prompt: "  hello  ")
-        result = console.input("Name:")
+class TestPrompt:
+    def test_returns_stripped_prompt(self, monkeypatch, console: Console):
+        monkeypatch.setattr("builtins.input", lambda message: "  hello  ")
+        result = console.prompt("Name:")
         assert result == "hello"
 
-    def test_passes_colored_prompt_to_builtin_input(
+    def test_passes_colored_message_to_builtin_prompt(
         self, monkeypatch, console: Console
     ):
         captured = {}
 
-        def fake_input(prompt):
-            captured["prompt"] = prompt
+        def fake_prompt(message):
+            captured["message"] = message
             return "value"
 
-        monkeypatch.setattr("builtins.input", fake_input)
-        console.input("Enter name:", color=Color.DEEP_AQUA, include_time=False)
+        monkeypatch.setattr("builtins.input", fake_prompt)
+        console.prompt("Enter name:", include_time=False)
 
-        assert captured["prompt"] == f"{Color.DEEP_AQUA}Enter name:{Color.RESET}"
+        assert captured["message"] == f"{Color.SKY_BLUE}[PROMPT] Enter name:{Color.RESET}"
 
     def test_includes_timestamp_when_requested(
         self, monkeypatch, console: Console, frozen_time: str
     ):
         captured = {}
 
-        def fake_input(prompt):
-            captured["prompt"] = prompt
+        def fake_prompt(message):
+            captured["message"] = message
             return "value"
 
-        monkeypatch.setattr("builtins.input", fake_input)
-        console.input("Name:", color=Color.CRIMSON, include_time=True)
+        monkeypatch.setattr("builtins.input", fake_prompt)
+        console.prompt("Name:", include_time=True)
 
-        assert captured["prompt"] == f"{Color.CRIMSON}{frozen_time} Name:{Color.RESET}"
+        assert captured["message"] == f"{Color.SKY_BLUE}{frozen_time} [PROMPT] Name:{Color.RESET}"
 
-    def test_empty_input_strips_to_empty_string(self, monkeypatch, console: Console):
-        monkeypatch.setattr("builtins.input", lambda prompt: "   ")
-        assert console.input("Name:") == ""
-
+    def test_empty_prompt_strips_to_empty_string(self, monkeypatch, console: Console):
+        monkeypatch.setattr("builtins.input", lambda message: "   ")
+        assert console.prompt("Name:") == ""
 
 class TestEventDispatch:
     def test_event_calls_emit_with_expected_arguments(
