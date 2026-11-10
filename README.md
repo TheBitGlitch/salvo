@@ -145,7 +145,7 @@ salvo run
   -c, --concurrency             Maximum number of concurrent workers. Default: 6.
   -p, --proxy                   HTTP/HTTPS proxy URL.
   -e, --endpoints               Path to the endpoint configuration JSON.
-      --fail-tolerance          Maximum consecutive failures before stopping. Default: 6 in limited mode.
+      --fail-tolerance          Maximum consecutive failures before stopping. Default: 6 (LIMITED mode).
       --timeout                 Per-request timeout in seconds. Default: 5.0.
       --fallback, --no-fallback Enable or disable proxy fallback. Limited mode only. Default: off.
       --ssl,      --no-ssl      Enable or disable SSL certificate verification. Default: on.
