@@ -94,7 +94,7 @@ def main() -> None:
         console.error(str(exc))
         terminate(1)
     
-    proceed = console.input("Review complete. Proceed? (y/n): ").lower()
+    proceed = console.prompt("Review complete. Proceed? (y/n): ").lower()
 
     if proceed not in ("y", "yes"):
         console.notice("Execution aborted by operator.")
