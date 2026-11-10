@@ -5,7 +5,7 @@ import sys
 import socket
 
 from cli import app as cli_app
-from cli.sub_apps import RuntimeArgs
+from cli.models import RuntimeConfig
 from cli.helpers import get_invocation
 
 from kernel.core import Engine
@@ -18,9 +18,8 @@ from tools.history import History
 
 def check_network_access(timeout: float = 10) -> bool:
     """Checks whether a network connection can be established."""
-
     try:
-        with socket.create_connection(address=("8.8.8.8", 53), timeout=timeout):
+        with socket.create_connection(address=("google.com", 443), timeout=timeout):
             return True
 
     except OSError:
@@ -28,7 +27,7 @@ def check_network_access(timeout: float = 10) -> bool:
 
 
 def terminate(status: int = 0) -> None:
-    """Exits the program with the specified status code."""
+    """Exits the program with the specified exit code."""
     sys.exit(status)
 
 
@@ -41,86 +40,82 @@ def main() -> None:
     if invocation := get_invocation(HISTORY_BLACKLIST):
         History.add(invocation)
 
-    # Management commands complete their work without producing runtime arguments.
-    runtime_args: RuntimeArgs | None = cli_app()
+    # Management commands complete their work without producing runtime configuration.
+    runtime_config: RuntimeConfig | None = cli_app()
 
-    if runtime_args is None:
-        terminate()  # No runtime execution is required.
+    if runtime_config is None:
+        terminate()  # No runtime execution is needed
 
     console = Console(
-        verbose=runtime_args.verbose,
-        colored=runtime_args.color,
+        verbose=runtime_config.verbose,
+        colored=runtime_config.color,
     )
+
+    console.clear_screen()
+    console.manifest(runtime_config.asdict)
+
+    if runtime_config.proxy is None:
+        console.warning(
+            "No proxy configured. Requests will use a direct connection."
+        )
+
+    if not runtime_config.ssl:
+        console.warning(
+            "SSL verification is disabled. Server certifications will not be verified."
+        )
+
+    if runtime_config.fallback:
+        console.warning(
+            "Proxy fallback is enabled. Requests will fall back to a direct connection after repeated proxy failures."
+        )
 
     if not check_network_access():
         console.error(
-            "No network connection found. Please check your internet and try again."
+            "No network connection detected. Please check your internet connection and try again."
         )
         terminate(1)
 
     try:
         api_factory = ApiFactory(
-            endpoints_path=runtime_args.endpoints,
-            context={"phone": runtime_args.target},
+            endpoints_path=runtime_config.endpoints,
+            context={"phone": runtime_config.target},
         )
         api_factory.build()
+
+        console.notice(f"Loaded {api_factory.slot_count} valid API endpoints.")
+
+        if api_factory.dropped_count > 0:
+            console.debug(
+                f"{api_factory.dropped_count} API endpoints failed validation "
+                "and were excluded from this execution."
+            )
 
     except ApiError as exc:
         console.error(str(exc))
         terminate(1)
-        
-    if runtime_args.proxy is None:
-        proceed = console.input(
-            "No proxy configured. Using your own IP. Proceed (y/n)? "
-        ).lower()
+    
+    proceed = console.input("Review complete. Proceed? (y/n): ").lower()
 
-        if proceed not in ("y", "yes"):
-            console.notice("Mission aborted by operator.")
-            terminate()
+    if proceed not in ("y", "yes"):
+        console.notice("Execution aborted by operator.")
+        terminate()
 
-    console.clear_screen()
-
-    console.manifest(runtime_args.asdict)
-
-    if not runtime_args.ssl:
-        console.warning(
-            "SSL certificate verification is disabled. "
-            "HTTPS requests will not verify the server certificate."
-        )
-
-    if runtime_args.proxy is not None:
-        console.warning("An unreachable proxy may delay failure reports until timeout.")
-        
-    if runtime_args.fallback:
-        console.warning(
-            "Proxy fallback enabled; After the failure tolerance "
-            "is reached, requests switch to a direct connection."
-        )
-
-    console.notice(f"{api_factory.slot_count} valid API endpoints loaded.")
-
-    if api_factory.dropped_count > 0:
-        console.debug(
-            f"{api_factory.dropped_count} endpoints were dropped during "
-            "validation and will never be selectable this run."
-        )
-        
-    console.notice("Press Ctrl+C to stop the mission at any time.")
+    console.notice("Press Ctrl+C at any time to abort execution.")
 
     try:
         engine = Engine(
             api_slots=api_factory.api_slots,
-            runtime_args=runtime_args,
+            runtime_config=runtime_config,
             console=console,
         )
         engine.launch()
 
     except Exception as exc:
-        console.error(f"Unexpected error: {str(exc)}")
+        console.error(f"Execution failed: {str(exc)}")
 
-        if runtime_args.verbose:
+        if runtime_config.verbose:
             raise
-            
+
         terminate(1)
 
 
