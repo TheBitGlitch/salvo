@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from cyclopts import UNSET
+
 from .variants import ExecutionMode
 from .regex_patterns import Patterns
 from .exceptions import (
@@ -12,7 +14,7 @@ from .exceptions import (
 )
 
 if TYPE_CHECKING:
-    from .sub_apps import RuntimeArgs
+    from .models import RuntimeArgs
 
 
 def phone_validator(type_, phone_number: str) -> None:
@@ -73,7 +75,7 @@ def runtime_validator(type_, args: RuntimeArgs) -> None:
                 "The --limit option cannot be used with unlimited execution mode. "
             )
 
-        if args.fail_tolerance is not None:
+        if args.fail_tolerance is not UNSET:
             raise CliValidationError(
                 "The --fail-tolerance option cannot be used with unlimited execution mode. "
             )
