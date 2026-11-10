@@ -313,6 +313,7 @@ healthy. Use Limited when you need the pool to adapt to endpoint health.
 │   ├── converters.py             # CLI argument converters
 │   ├── exceptions.py             # CLI validation exceptions
 │   ├── helpers.py                # CLI helper utilities
+│   ├── models.py                 # CLI argument and runtime configuration models
 │   ├── regex_patterns.py         # Compiled regular expressions
 │   ├── sub_apps.py               # `run` and auto-discovered `manage` commands
 │   ├── validators.py             # CLI argument validators
