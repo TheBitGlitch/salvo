@@ -209,4 +209,3 @@ def sync_endpoints(
 
     else:
         print("Endpoint configuration synchronization failed.")
-
