@@ -15,7 +15,7 @@ from kernel.libs.printer import Console
 from kernel.libs.printer.tags import SeverityTag, EventTag, ResponseTag
 
 if TYPE_CHECKING:
-    from cli.sub_apps import RuntimeArgs
+    from cli.models import RuntimeConfig
 
 
 class Engine:
@@ -73,7 +73,7 @@ class Engine:
     def __init__(
         self,
         api_slots: tuple[ApiSlot, ...],
-        runtime_args: RuntimeArgs,
+        runtime_config: RuntimeConfig,
         console: Console,
     ) -> None:
         """
@@ -81,22 +81,22 @@ class Engine:
 
         Args:
             api_slots: Validated API slots from the API factory, used by the API pool.
-            runtime_args: Validated runtime configuration.
+            runtime_config: Validated runtime configuration.
             console: Console instance used for logging and status reporting.
         """
         self._api_pool = ApiPool(
-            api_slots=api_slots, bounded=runtime_args.bounded, console=console
+            api_slots=api_slots, bounded=runtime_config.bounded, console=console
         )
         self._tracker = SessionTracker(
-            limit=runtime_args.limit,
-            fail_tolerance=runtime_args.fail_tolerance,
+            limit=runtime_config.limit,
+            fail_tolerance=runtime_config.fail_tolerance,
             console=console,
         )
         self._console = console
 
-        self._runtime_args = runtime_args
+        self._runtime_config = runtime_config
         # Runtime state kept separate from the immutable configuration.
-        self._runtime_proxy = runtime_args.proxy
+        self._runtime_proxy = runtime_config.proxy
 
         self._fallback_lock = asyncio.Lock()
 
@@ -127,7 +127,7 @@ class Engine:
             status_code = await self._send_request(
                 session=session,
                 api_call=api_call,
-                timeout=self._runtime_args.timeout,
+                timeout=self._runtime_config.timeout,
                 headers={"User-Agent": user_agent},
                 proxy=self._runtime_proxy,
             )
@@ -230,13 +230,13 @@ class Engine:
                     f"since the last result for {api_call.source!r} carried "
                     "no usable verdict."
                 )
-                
+
                 previous_source = None
                 previous_verdict = None
 
                 if not should_continue:
                     break
-                    
+
                 continue
 
             previous_source = api_call.source
@@ -245,8 +245,8 @@ class Engine:
             async with self._fallback_lock:
                 if (
                     self._runtime_proxy
-                    and self._runtime_args.fallback
-                    and self._runtime_args.bounded
+                    and self._runtime_config.fallback
+                    and self._runtime_config.bounded
                     and self._tracker.consec_fail >= self._tracker.fail_tolerance
                 ):
                     self._console.event(
@@ -269,7 +269,7 @@ class Engine:
                         "back to True after fallback reset the stop condition "
                         "that this same failure streak had just triggered."
                     )
-                    
+
                     should_continue = True
 
             if not should_continue:
@@ -290,8 +290,8 @@ class Engine:
         start_time = self._current_time()
 
         tcp_connector = TCPConnector(
-            ssl=self._runtime_args.ssl,
-            limit=self._runtime_args.concurrency,
+            ssl=self._runtime_config.ssl,
+            limit=self._runtime_config.concurrency,
         )
 
         async with ClientSession(connector=tcp_connector) as session:
@@ -300,17 +300,17 @@ class Engine:
                     asyncio.create_task(
                         self._worker(i, session, self._user_agent.random)
                     )
-                    for i in range(1, self._runtime_args.concurrency + 1)
+                    for i in range(1, self._runtime_config.concurrency + 1)
                 ]
 
                 self._console.notice(
-                    f"All {self._runtime_args.concurrency} workers are running."
+                    f"All {self._runtime_config.concurrency} workers are running."
                 )
 
                 await asyncio.gather(*workers)
 
             except asyncio.CancelledError:
-                self._console.warning("Mission stopped by operator.")
+                self._console.warning("Execution aborted by operator.")
 
             finally:
                 self._tracker.stop_event.set()
