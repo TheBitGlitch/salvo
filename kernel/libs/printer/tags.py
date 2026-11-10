@@ -47,7 +47,8 @@ class SystemTag(Tag):
 
     MANIFEST = ("MANIFEST", Color.AQUA)
     SUMMARY = ("SUMMARY", Color.DEEP_AQUA)
-    
+    PROMPT = ("PROMPT", Color.SKY_BLUE)
+
 
 class ResponseTag(Tag):
     """Tags used to indicate possible outcomes from an API request."""
