@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import TYPE_CHECKING
 
 from cyclopts import UNSET
@@ -58,7 +56,7 @@ def proxy_validator(type_, proxy_url: str | None) -> None:
         raise UnsupportedProxyUrlError(scheme)
 
 
-def runtime_validator(type_, args: RuntimeArgs) -> None:
+def runtime_validator(type_, args: "RuntimeArgs") -> None:
     """
     Validates the arguments used to configure application execution.
 
