@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import asyncio
 from typing import TYPE_CHECKING
 
@@ -73,7 +71,7 @@ class Engine:
     def __init__(
         self,
         api_slots: tuple[ApiSlot, ...],
-        runtime_config: RuntimeConfig,
+        runtime_config: "RuntimeConfig",
         console: Console,
     ) -> None:
         """
