@@ -154,7 +154,7 @@ class RuntimeConfig:
     verbose: bool
 
     @classmethod
-    def from_args(cls, args: RuntimeArgs) -> RuntimeConfig:
+    def from_args(cls, args: RuntimeArgs) -> "RuntimeConfig":
         """
         Creates a runtime configuration from parsed command-line arguments.
 
