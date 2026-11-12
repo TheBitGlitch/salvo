@@ -9,7 +9,7 @@ class LoadApiEndpointsError(ApiError):
     """Raised when the endpoints JSON file cannot be loaded."""
 
     def __init__(self, path: Path) -> None:
-        super().__init__(f"Failed to load API endpoints from {path!r}.")
+        super().__init__(f"Failed to load API endpoints from {str(path)!r}.")
 
 
 class ApiEndpointsNotFoundError(ApiError):
@@ -17,7 +17,7 @@ class ApiEndpointsNotFoundError(ApiError):
 
     def __init__(self, path: Path) -> None:
         super().__init__(
-            f"API endpoints file was not found at {path!r}.\n\n"
+            f"API endpoints file was not found at {str(path)!r}.\n\n"
             "To download the required endpoints, run:\n"
             "    salvo manage sync-endpoints\n"
         )
